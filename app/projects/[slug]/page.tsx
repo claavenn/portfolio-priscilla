@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
@@ -8,6 +9,53 @@ const PROJECTS: Record<
   string,
   { title: string; desc: string; role: string; stack: string[]; highlights: string[]; demo?: string }
 > = {
+  "neural-interface": {
+    title: "Neural Interface",
+    desc: "AI-powered dashboard with real-time analytics and predictive modeling.",
+    role: "Fullstack + AI",
+    stack: ["Next.js 14", "TensorFlow.js", "Three.js", "Tailwind", "Prisma"],
+    highlights: [
+      "Real-time analytics and predictive modeling.",
+      "Interactive 3D neural visualizations with Three.js.",
+      "Seamless data pipeline integration.",
+    ],
+    demo: "https://drive.google.com/drive/folders/1YsCIQjnESDeR_I5zngWsyMvWWSavdvVi",
+  },
+  "quantum-flow": {
+    title: "Quantum Flow",
+    desc: "Collaborative platform for quantum computing research and visualization.",
+    role: "Frontend + WebAssembly",
+    stack: ["React", "WebAssembly", "D3.js", "FastAPI", "Redis"],
+    highlights: [
+      "Collaborative platform for quantum research.",
+      "High performance simulation using WebAssembly.",
+      "Rich interactive visual charts with D3.js.",
+    ],
+    demo: "https://linktr.ee/AKANG_AsetKandang?utm_source=linktree_profile_share&ltsid=452e42b4-85fa-4336-adb6-a18fded8aec4",
+  },
+  "ethereal": {
+    title: "Ethereal",
+    desc: "Immersive 3D portfolio platform with WebGL and real-time physics.",
+    role: "Creative Developer",
+    stack: ["Three.js", "R3F", "GSAP", "TypeScript", "WebGL"],
+    highlights: [
+      "Immersive 3D experience with real-time physics.",
+      "Smooth GSAP scroll-triggered animations.",
+      "WebGL performance optimizations for mobile & desktop.",
+    ],
+    demo: "https://drive.google.com/drive/folders/1eHVf-AbaNsLKbyc2OqOioRyUqhHNfRuF?usp=sharing",
+  },
+  "cybergrid": {
+    title: "CyberGrid",
+    desc: "Real-time monitoring system for distributed computing networks.",
+    role: "Backend & Systems",
+    stack: ["Next.js", "WebSocket", "D3.js", "Prisma", "PostgreSQL"],
+    highlights: [
+      "Real-time monitoring system with WebSockets.",
+      "Live distributed node status tracking.",
+      "Optimized PostgreSQL queries with Prisma ORM.",
+    ],
+  },
   "project-a": {
     title: "Project A",
     desc: "Landing page premium dengan animasi halus dan performa tinggi.",
@@ -38,8 +86,13 @@ const PROJECTS: Record<
   },
 };
 
-export default function ProjectDetail({ params }: { params: { slug: string } }) {
-  const p = PROJECTS[params.slug];
+export default function ProjectDetail({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const p = PROJECTS[slug];
 
   if (!p) {
     return (

@@ -28,7 +28,6 @@ import {
   Sparkle,
   Award,
   Calendar,
-  MapPin,
   Heart,
   MessageCircle,
   Send,
@@ -39,6 +38,59 @@ import {
   BadgeCheck,
   ExternalLink,
 } from "lucide-react";
+
+interface ExperienceItem {
+  slug: string;
+  role: string;
+  place: string;
+  period: string;
+  achievements: string[];
+  tech: string[];
+  link: string;
+  photos?: string[];
+}
+
+interface ProjectItem {
+  slug: string;
+  title: string;
+  desc: string;
+  tags: string[];
+  link: string;
+}
+
+interface Certification {
+  title: string;
+  issuer: string;
+  year: string;
+  credentialId: string | null;
+  skills: string[];
+  extraSkills?: number;
+  icon: React.ComponentType<{ className?: string }>;
+  link: string;
+}
+
+interface Particle {
+  id: number;
+  size: number;
+  background: string;
+  left: string;
+  top: string;
+  duration: number;
+}
+
+const PARTICLES: Particle[] = Array.from({ length: 30 }, (_, i) => {
+  const r1 = ((i * 9301 + 49297) % 233280) / 233280;
+  const r2 = ((i * 12345 + 67891) % 233280) / 233280;
+  const r3 = ((i * 54321 + 98765) % 233280) / 233280;
+  return {
+    id: i,
+    size: Number((r1 * 3 + 1).toFixed(1)),
+    background: i % 3 === 0 ? "rgba(247,191,210,0.6)" : "rgba(255,255,255,0.3)",
+    left: `${(r2 * 100).toFixed(2)}%`,
+    top: `${(r3 * 100).toFixed(2)}%`,
+    duration: Number((r3 * 20 + 15).toFixed(1)),
+  };
+});
 
 function cn(...s: Array<string | false | undefined>) {
   return s.filter(Boolean).join(" ");
@@ -53,32 +105,26 @@ const COLORS = {
    BACKGROUND FX
    ============================================================ */
 function FloatingParticles() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(30)].map((_, i) => (
+      {PARTICLES.map((p) => (
         <motion.div
-          key={i}
+          key={p.id}
           className="absolute rounded-full"
           style={{
-            width: Math.random() * 3 + 1,
-            height: Math.random() * 3 + 1,
-            background:
-              i % 3 === 0 ? "rgba(247,191,210,0.6)" : "rgba(255,255,255,0.3)",
-          }}
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            width: p.size,
+            height: p.size,
+            background: p.background,
+            left: p.left,
+            top: p.top,
           }}
           animate={{
-            y: [null, -100, 0, 100, 0],
-            x: [null, 50, -50, 25, 0],
+            y: [0, -100, 0, 100, 0],
+            x: [0, 50, -50, 25, 0],
             opacity: [0.2, 0.8, 0.2, 0.4, 0.2],
           }}
           transition={{
-            duration: Math.random() * 20 + 15,
+            duration: p.duration,
             repeat: Infinity,
             ease: "linear",
           }}
@@ -296,17 +342,17 @@ function AnimatedCounter({
 /* ============================================================
    PHOTO CARD
    ============================================================ */
-/* ============================================================
-   PHOTO CARD
-   ============================================================ */
 function PhotoHeroCard({
   name,
   ig,
   photoSrc,
+  role,
 }: {
   name: string;
   ig: string;
   photoSrc: string;
+  role?: string;
+  specialization?: string;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -378,7 +424,7 @@ function PhotoHeroCard({
                 {name}
               </h3>
               <p className="text-[10px] font-medium text-white/50 leading-snug">
-                CS Student @ BINUS
+                {role || "CS Student @ BINUS"}
               </p>
             </div>
 
@@ -491,7 +537,7 @@ function SectionTitle({
 /* ============================================================
    EXPERIENCE CARD — CLICKABLE with MODAL
    ============================================================ */
-function ExperienceCard({ exp, index, onOpen }: { exp: any; index: number; onOpen: () => void }) {
+function ExperienceCard({ exp, onOpen }: { exp: ExperienceItem; index?: number; onOpen: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -574,7 +620,7 @@ function ExperienceCard({ exp, index, onOpen }: { exp: any; index: number; onOpe
 }
 
 /* Modal */
-function ExperienceModal({ exp, onClose }: { exp: any; onClose: () => void }) {
+function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () => void }) {
   useEffect(() => {
     const handle = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", handle);
@@ -654,16 +700,16 @@ function ExperienceModal({ exp, onClose }: { exp: any; onClose: () => void }) {
                   className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-gradient-to-br from-pink-300/10 to-purple-400/10 flex items-center justify-center"
                   whileHover={{ scale: 1.03 }}
                 >
-                  <Image
-                    src={`/exp/${exp.slug}-${n}.jpg`}
-                    alt={`${exp.role} photo ${n}`}
-                    fill
-                    className="object-cover opacity-70"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                  <Sparkle className="w-5 h-5 text-pink-300/60" />
+                  {exp.photos?.[n - 1] ? (
+                    <Image
+                      src={exp.photos[n - 1]}
+                      alt={`${exp.role} photo ${n}`}
+                      fill
+                      className="object-cover opacity-70"
+                    />
+                  ) : (
+                    <Sparkle className="w-5 h-5 text-pink-300/60" />
+                  )}
                 </motion.div>
               ))}
             </div>
@@ -829,7 +875,7 @@ function TechStackSection() {
 /* ============================================================
    CERTIFICATIONS SECTION
    ============================================================ */
-const CERTIFICATIONS = [
+const CERTIFICATIONS: Certification[] = [
   {
     title: "Google Cloud Computing Foundations Certificate",
     issuer: "Google Cloud Skills Boost",
@@ -955,7 +1001,7 @@ function CertificationsSection() {
                         {skill}
                       </span>
                     ))}
-                    {cert.extraSkills > 0 && (
+                    {Boolean(cert.extraSkills && cert.extraSkills > 0) && (
                       <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/50">
                         +{cert.extraSkills} more
                       </span>
@@ -980,7 +1026,7 @@ function CertificationsSection() {
 /* ============================================================
    PROJECT CARD
    ============================================================ */
-function ProjectCard({ project, index }: { project: any; index: number }) {
+function ProjectCard({ project }: { project: ProjectItem; index?: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -1654,7 +1700,7 @@ export default function Page() {
   });
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  const [openExp, setOpenExp] = useState<any | null>(null);
+  const [openExp, setOpenExp] = useState<ExperienceItem | null>(null);
 
   const NAME = "Priscilla Valencia Andow";
   const SHORT_NAME = "Priscilla V.A.";
@@ -1668,7 +1714,7 @@ export default function Page() {
   const LINKEDIN = "https://www.linkedin.com/in/priscilla-valencia-andow/";
   const PHOTO_SRC = "/me.jpg";
 
-  const EXPERIENCES = [
+  const EXPERIENCES: ExperienceItem[] = [
     {
       slug: "tfisc-chairman",
       role: "Regional Chairman of TFISC @Semarang",
@@ -1724,7 +1770,7 @@ export default function Page() {
     },
   ];
 
-  const PROJECTS = [
+  const PROJECTS: ProjectItem[] = [
     {
       slug: "neural-interface",
       title: "Neural Interface",
@@ -1856,7 +1902,7 @@ export default function Page() {
                   transition={{ delay: 0.4 }}
                   className="block text-white/90 text-xl md:text-2xl font-bold mb-1"
                 >
-                  Hi, I'm
+                  Hi, I&apos;m
                 </motion.span>
                 <motion.span
                   initial={{ opacity: 0, y: 15 }}
@@ -1947,7 +1993,7 @@ export default function Page() {
                   className="px-5 py-3 rounded-xl border border-white/15 bg-white/5 text-white text-sm font-bold flex items-center gap-2 backdrop-blur-xl"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  Let's Talk
+                  Let&apos;s Talk
                 </MagneticButton>
               </motion.div>
             </motion.div>
@@ -1987,7 +2033,7 @@ export default function Page() {
         transition={{ duration: 6, repeat: Infinity }}
       />
       <p className="relative text-white/70 leading-relaxed font-medium text-[13px] md:text-sm">
-        I'm a Computer Science student specializing in Cloud Technology, with a strong commitment to user-centric problem solving and social impact. As Regional President of TFISC Semarang and Semifinalist at BINUS Startup Vaganza, I leverage cross-functional leadership and technology to address real-world challenges. I'm driven to join the Apple Developer Academy to solve meaningful community problems through innovative app solutions.
+        I&apos;m a Computer Science student specializing in Cloud Technology, with a strong commitment to user-centric problem solving and social impact. As Regional President of TFISC Semarang and Semifinalist at BINUS Startup Vaganza, I leverage cross-functional leadership and technology to address real-world challenges. I&apos;m driven to join the Apple Developer Academy to solve meaningful community problems through innovative app solutions.
       </p>
     </div>
   </Reveal>
