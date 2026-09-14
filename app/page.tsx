@@ -2838,6 +2838,8 @@ function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () =>
     };
   }, [onClose]);
 
+  const hasGallery = Boolean(exp.photos && exp.photos.length > 0);
+
   return (
     <motion.div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -2863,6 +2865,7 @@ function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () =>
           <X className="w-4 h-4 text-white" />
         </button>
 
+        {/* Photo banner */}
         <div className="relative h-44 bg-gradient-to-br from-pink-300/25 via-purple-300/15 to-transparent overflow-hidden">
           <motion.div
             className="absolute inset-0 opacity-40"
@@ -2885,6 +2888,7 @@ function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () =>
         </div>
 
         <div className="p-6 space-y-5">
+          {/* Header */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-pink-300 mb-1">
               {exp.place} • {exp.period}
@@ -2894,32 +2898,36 @@ function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () =>
             </h3>
           </div>
 
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white/50 mb-2">
-              Gallery
-            </h4>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3].map((n) => (
-                <motion.div
-                  key={n}
-                  className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-gradient-to-br from-pink-300/10 to-purple-400/10 flex items-center justify-center"
-                  whileHover={{ scale: 1.03 }}
-                >
-                  {exp.photos?.[n - 1] ? (
-                    <Image
-                      src={exp.photos[n - 1]}
-                      alt={`${exp.role} photo ${n}`}
-                      fill
-                      className="object-cover opacity-90"
-                    />
-                  ) : (
-                    <Sparkle className="w-5 h-5 text-pink-300/60" />
-                  )}
-                </motion.div>
-              ))}
+          {/* Gallery — hanya muncul kalau ada photos */}
+          {hasGallery && (
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white/50 mb-2">
+                Gallery
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {[1, 2, 3].map((n) => (
+                  <motion.div
+                    key={n}
+                    className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-gradient-to-br from-pink-300/10 to-purple-400/10 flex items-center justify-center"
+                    whileHover={{ scale: 1.03 }}
+                  >
+                    {exp.photos?.[n - 1] ? (
+                      <Image
+                        src={exp.photos[n - 1]}
+                        alt={`${exp.role} photo ${n}`}
+                        fill
+                        className="object-cover opacity-90"
+                      />
+                    ) : (
+                      <Sparkle className="w-5 h-5 text-pink-300/60" />
+                    )}
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
+          {/* Achievements */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white/50 mb-2">
               Achievements
@@ -2940,6 +2948,7 @@ function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () =>
             </ul>
           </div>
 
+          {/* Skills */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white/50 mb-2">
               Skills
@@ -2957,6 +2966,7 @@ function ExperienceModal({ exp, onClose }: { exp: ExperienceItem; onClose: () =>
             </div>
           </div>
 
+          {/* External link */}
           {exp.link && exp.link !== "#" && (
             <a
               href={exp.link}
