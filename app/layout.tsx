@@ -15,6 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Priscilla Valencia Andow",
   description: "Portfolio of Priscilla Valencia Andow. Specializing in Cloud Technology, Artificial Intelligence, and Software Engineering.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
