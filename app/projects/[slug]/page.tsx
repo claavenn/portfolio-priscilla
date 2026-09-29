@@ -160,12 +160,12 @@ export default function ProjectDetail({
   const p = PROJECTS[slug] || PROJECTS["cloud-audit"];
 
   return (
-    <div className="min-h-screen bg-[#08080A] text-[#EDEDED] selection:bg-[#F5C2D2] selection:text-[#08080A]">
-      <div className="border-b border-white/[0.08] bg-[#08080A]/80 backdrop-blur-md sticky top-0 z-30">
+    <div className="min-h-screen bg-[#07070A] text-[#F2F4F8] selection:bg-[#D4FF00] selection:text-[#07070A] bg-carbon-grid">
+      <div className="border-b border-white/[0.08] bg-[#07070A]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
-            href="/#projects"
-            className="group inline-flex items-center gap-2 text-xs font-mono tracking-wider uppercase text-white/60 hover:text-white transition-colors"
+            href="/"
+            className="group inline-flex items-center gap-2 text-xs font-mono tracking-wider uppercase text-white/60 hover:text-[#D4FF00] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
             <span>Return to Portfolio</span>
@@ -173,7 +173,7 @@ export default function ProjectDetail({
           <div className="flex items-center gap-3 text-xs font-mono text-white/40">
             <span>INDEX // {p.index}</span>
             <span>•</span>
-            <span className="text-[#F5C2D2]">{p.category.split("//")[0]}</span>
+            <span className="text-[#D4FF00] font-bold">{p.category.split("//")[0]}</span>
           </div>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function ProjectDetail({
       <main className="max-w-6xl mx-auto px-6 py-16 md:py-24">
         {/* Header Block */}
         <div className="border-b border-white/[0.08] pb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/[0.03] text-[11px] font-mono tracking-widest text-[#F5C2D2] mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#D4FF00]/30 bg-[#D4FF00]/10 text-[11px] font-mono tracking-widest text-[#D4FF00] mb-6">
             <span>{p.category}</span>
           </div>
 
@@ -189,13 +189,12 @@ export default function ProjectDetail({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-6xl font-light tracking-tight text-white max-w-4xl"
-            style={{ fontFamily: 'var(--font-sans), system-ui, sans-serif' }}
+            className="text-4xl md:text-6xl font-bold tracking-tight text-white max-w-4xl"
           >
             {p.title}
           </motion.h1>
 
-          <p className="mt-4 text-lg md:text-xl text-white/60 font-light max-w-3xl leading-relaxed">
+          <p className="mt-4 text-lg md:text-xl text-white/70 font-light max-w-3xl leading-relaxed">
             {p.subtitle}
           </p>
 
@@ -205,7 +204,7 @@ export default function ProjectDetail({
                 href={p.demo}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#F5C2D2] text-[#08080A] text-xs font-bold uppercase tracking-wider hover:bg-[#ffcddc] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#D4FF00] text-[#07070A] text-xs font-bold uppercase tracking-wider hover:bg-white transition-colors"
               >
                 <span>Access Live Showcase</span>
                 <ArrowUpRight className="w-4 h-4" />
@@ -222,7 +221,7 @@ export default function ProjectDetail({
           <div className="md:col-span-4 space-y-8">
             <div>
               <div className="text-[11px] font-mono uppercase tracking-widest text-white/40 mb-3 flex items-center gap-2">
-                <Layers className="w-3.5 h-3.5 text-[#F5C2D2]" />
+                <Layers className="w-3.5 h-3.5 text-[#D4FF00]" />
                 <span>Technology Stack</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -239,26 +238,26 @@ export default function ProjectDetail({
 
             <div>
               <div className="text-[11px] font-mono uppercase tracking-widest text-white/40 mb-3 flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#F5C2D2]" />
-                <span>Project Scope</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#D4FF00]" />
+                <span>Strategic Scope</span>
               </div>
               <p className="text-xs font-mono text-white/60 leading-relaxed">
-                Engineered with high standards for production readiness, reliability, and architectural clarity.
+                Engineered with high enterprise rigor for cloud governance, regulatory compliance, and Big Four advisory due diligence.
               </p>
             </div>
           </div>
 
           <div className="md:col-span-8 space-y-8">
             <div>
-              <h2 className="text-xl font-medium text-white mb-4">Executive Summary</h2>
-              <p className="text-white/70 leading-relaxed font-light text-base md:text-lg">
+              <h2 className="text-xl font-bold text-white mb-4">Executive Summary</h2>
+              <p className="text-white/80 leading-relaxed font-light text-base md:text-lg">
                 {p.desc}
               </p>
             </div>
 
             {p.architecture && (
               <div>
-                <h3 className="text-sm font-mono uppercase tracking-wider text-[#F5C2D2] mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-mono uppercase tracking-wider text-[#D4FF00] mb-4 flex items-center gap-2 font-bold">
                   <Terminal className="w-4 h-4" />
                   <span>Architectural Pipeline</span>
                 </h3>
@@ -266,9 +265,9 @@ export default function ProjectDetail({
                   {p.architecture.map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-lg border border-white/[0.08] bg-white/[0.02] flex items-start gap-3"
+                      className="p-4 rounded-xl border border-white/[0.08] bg-[#0E0F14] flex items-start gap-3"
                     >
-                      <span className="text-xs font-mono text-[#F5C2D2] mt-0.5">0{idx + 1}.</span>
+                      <span className="text-xs font-mono text-[#D4FF00] mt-0.5 font-bold">0{idx + 1}.</span>
                       <span className="text-sm text-white/80 leading-snug">{item}</span>
                     </div>
                   ))}
@@ -277,13 +276,13 @@ export default function ProjectDetail({
             )}
 
             <div>
-              <h3 className="text-sm font-mono uppercase tracking-wider text-white/50 mb-4">
+              <h3 className="text-sm font-mono uppercase tracking-wider text-white/50 mb-4 font-bold">
                 Core Deliverables & Highlights
               </h3>
               <div className="grid gap-3">
                 {p.highlights.map((h, i) => (
-                  <div key={i} className="flex items-start gap-3 text-sm text-white/75">
-                    <CheckCircle2 className="w-4 h-4 text-[#F5C2D2] shrink-0 mt-0.5" />
+                  <div key={i} className="flex items-start gap-3 text-sm text-white/80 font-light">
+                    <CheckCircle2 className="w-4 h-4 text-[#D4FF00] shrink-0 mt-0.5" />
                     <span>{h}</span>
                   </div>
                 ))}
@@ -295,13 +294,13 @@ export default function ProjectDetail({
         {/* Footer Navigation */}
         <div className="pt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link
-            href="/#projects"
-            className="text-xs font-mono tracking-wider uppercase text-white/60 hover:text-[#F5C2D2] transition-colors"
+            href="/"
+            className="text-xs font-mono tracking-wider uppercase text-white/60 hover:text-[#D4FF00] transition-colors"
           >
-            ← Back to All Projects
+            ← Back to Portfolio
           </Link>
           <div className="text-xs font-mono text-white/30">
-            PRISCILLA VALENCIA ANDOW // PORTFOLIO ARCHIVE
+            PVA // PRISCILLA VALENCIA ANDOW • 2026
           </div>
         </div>
       </main>

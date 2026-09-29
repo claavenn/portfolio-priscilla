@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Priscilla Valencia Andow | Portfolio",
-  description: "Computer Science student specializing in Cloud Technology, UI/UX, and Software Engineering.",
+  title: "Priscilla Valencia Andow",
+  description: "Portfolio of Priscilla Valencia Andow. Specializing in Cloud Technology, Artificial Intelligence, and Software Engineering.",
 };
 
 export default function RootLayout({

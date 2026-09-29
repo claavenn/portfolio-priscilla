@@ -1,261 +1,124 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowUpRight,
-  ChevronDown,
-  Cloud,
-  Cpu,
-  Github,
-  Globe,
-  Layers,
-  Linkedin,
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  AnimatePresence,
+  useMotionValue,
+  useMotionTemplate,
+} from "framer-motion";
+import {
   Mail,
-  Sparkles,
-  Terminal,
+  Linkedin,
+  Github,
+  Instagram,
   X,
+  Award,
+  ExternalLink,
   CheckCircle2,
-  Activity,
-  Award
+  Download,
 } from "lucide-react";
 
 /* ============================================================
-   INTERFACES & TYPES
+   PROFILE
    ============================================================ */
-interface ProjectHolding {
-  index: string;
-  category: string;
-  title: string;
-  subtitle: string;
-  role: string;
-  period: string;
-  desc: string;
-  tags: string[];
-  link: string;
-  slug: string;
-  highlights: string[];
-}
-
-interface ExperienceEntry {
-  slug: string;
-  index: string;
-  role: string;
-  organization: string;
-  period: string;
-  scope: string;
-  achievements: string[];
-  competencies: string[];
-  photos?: string[];
-  showBinusLogo?: boolean;
-}
-
-interface CredentialEntry {
-  index: string;
-  title: string;
-  issuer: string;
-  date: string;
-  credentialId: string | null;
-  skills: string[];
-  url: string;
-}
-
-/* ============================================================
-   STATIC CONSTANTS & DATA
-   ============================================================ */
-const USER_PROFILE = {
-  name: "Priscilla Valencia Andow",
+const PROFILE = {
+  fullName: "Priscilla Valencia Andow",
   shortName: "Priscilla V.A.",
-  role: "Computer Science Scholar & Creative Technologist",
-  institution: "BINUS University",
-  location: "Semarang, Indonesia",
-  edition: "2026 // VOL. IV",
+  brand: "PVA",
   email: "priscilla.andow@binus.ac.id",
-  github: "https://github.com/claavenn",
   linkedin: "https://www.linkedin.com/in/priscilla-valencia-andow/",
-  instagram: "https://instagram.com/priscilla.vln",
-  igHandle: "@priscilla.vln",
+  github: "https://github.com/claavenn",
+  instagram: "https://www.instagram.com/priscilla.vln/",
   headshot: "/me.jpg",
+  cvUrl: "https://www.instagram.com/priscilla.vln/", // Fallback to Instagram as requested
 };
 
-const PROJECT_HOLDINGS: ProjectHolding[] = [
+/* ============================================================
+   DATA
+   ============================================================ */
+const EXPERIENCES = [
   {
-    index: "02",
-    category: "AI & COMPUTER VISION",
-    title: "Drowsiness Detection System",
-    subtitle: "Real-time facial landmark geometry and driver alertness safeguard",
-    role: "Lead Developer & CV Researcher",
-    period: "2025",
-    slug: "drowsiness-detection-system",
-    link: "https://drive.google.com/drive/folders/1YsCIQjnESDeR_I5zngWsyMvWWSavdvVi",
-    desc: "A computer vision safety system designed to prevent driver fatigue accidents. Processes real-time camera streams to localize 68 facial landmarks, calculate Eye Aspect Ratios (EAR), and trigger tiered acoustic-visual alerts upon detecting micro-sleep patterns.",
-    tags: ["Python", "OpenCV", "Dlib", "TensorFlow", "Computer Vision"],
-    highlights: [
-      "Inference achieved at 30+ FPS on consumer-grade camera feeds.",
-      "Adaptive EAR thresholding calibrated against natural head tilt and blink intervals.",
-      "Comprehensive verification suite testing low-light conditions and eyewear obstruction.",
-    ],
-  },
-  {
-    index: "03",
-    category: "VENTURE DESIGN & AI PLATFORM",
-    title: "AKANG (Binus STARTUP VAGANZA)",
-    subtitle: "Digitizing agricultural livestock into verifiable digital assets",
-    role: "Product Strategist & UI/UX Co-founder",
-    period: "2025",
-    slug: "akang",
-    link: "https://linktr.ee/AKANG_AsetKandang?utm_source=linktree_profile_share&ltsid=452e42b4-85fa-4336-adb6-a18fded8aec4",
-    desc: "Semifinalist in the BINUS Startup Vaganza. Conceptualized an AI-assisted agricultural investment platform transforming livestock into transparent digital assets. Delivered unit economics, investor web/mobile UI prototypes, and pitched strategy to venture judges.",
-    tags: ["Product Design", "UI/UX", "Business Model", "AI", "Startup Strategy"],
-    highlights: [
-      "Awarded Semifinalist placement among multi-campus venture competitors.",
-      "Formulated biometric telemetry model mapping livestock growth to yield projections.",
-      "Crafted high-fidelity mobile application prototypes for investor portfolio monitoring.",
-    ],
-  },
-  {
-    index: "04",
-    category: "LUXURY DIGITAL EXPERIENCE",
-    title: "Luxury Brand Website UI/UX",
-    subtitle: "Art-directed digital commerce with typographic precision and micro-interactions",
-    role: "Lead UI/UX Designer",
-    period: "2025",
-    slug: "luxury-brand-website",
-    link: "https://drive.google.com/drive/folders/1eHVf-AbaNsLKbyc2OqOioRyUqhHNfRuF?usp=sharing",
-    desc: "An editorial digital experience built for luxury retail. Emphasizes asymmetrical grids, refined typography, generous negative space, and nuanced micro-interactions designed to elevate brand perception.",
-    tags: ["Figma", "Design Systems", "Luxury UI/UX", "Micro-interactions"],
-    highlights: [
-      "Complete design system with responsive tokens and scalable typography scales.",
-      "Editorial product presentation featuring fluid lookbook transitions.",
-      "Evaluated for visual hierarchy, contrast balance, and tactile mobile navigation.",
-    ],
-  },
-  {
-    index: "05",
-    category: "HEALTHCARE MANAGEMENT SYSTEM",
-    title: "Sistem Apotek SMA",
-    subtitle: "Institutional pharmaceutical inventory & batch expiration monitoring system",
-    role: "Fullstack Web Developer",
-    period: "2024",
-    slug: "sistem-apotek-sma",
-    link: "",
-    desc: "A full-stack pharmaceutical administration platform developed for institutional clinics. Manages medication inventory, monitors batch expiry dates with proactive alert thresholds, and logs dispensary transactions.",
-    tags: ["Laravel", "PHP", "MySQL", "Tailwind CSS", "Chart.js"],
-    highlights: [
-      "Automated critical alerts notifying staff prior to pharmaceutical expiration.",
-      "Role-based access control safeguarding patient medication records.",
-      "Real-time dispensary audit ledger with automated monthly depletion reporting.",
-    ],
-  },
-];
-
-const EXPERIENCES: ExperienceEntry[] = [
-  {
-    slug: "tfisc-chairman",
     index: "01",
-    role: "Regional Chairman of TFISC @Semarang",
+    role: "Regional Prrsident of TFISC @Semarang",
     organization: "Teach For Indonesia Student Community",
     period: "2026 — Present",
-    scope: "Executive Leadership & Community Empowerment",
+    scope: "Executive Leadership & Regional Governance",
     achievements: [
-      "Led 70+ regional members and streamlined cross-divisional operations to execute high-impact educational, social, and environmental initiatives.",
-      "Spearheaded a revamped recruitment strategy, driving a significant surge in new member registrations and overall BINUSIAN involvement.",
-      "Initiated a joint social program with a local community, mobilizing 150+ BINUSIAN participants to create targeted regional impact.",
-      "Boosted community outreach and digital engagement by 200% through digital-first campaigns and structured social empowerment projects.",
+      "Leading board members and activists across Semarang to drive high-impact initiatives in education, sustainability, and community development.",
+      "Spearheading end-to-end program governance, team alignment, and strategic execution across regional working committees.",
+      "Cultivating internal operational excellence, effective communication pipelines, and collaborative problem-solving across dynamic regional programs.",
+      "Championing environmental and health awareness initiatives, driving large-scale community mobilization and volunteer participation.",
     ],
-    competencies: ["Executive Leadership", "Cross-Functional Strategy", "Community Mobilization", "Impact Measurement"],
-    photos: ["/exp/tfisc-1.jpg", "/exp/tfisc-2.jpg", "/exp/tfisc-3.jpg"],
+    competencies: ["TEAM MANAGEMENT", "CROSS-FUNCTIONAL LEADERSHIP", "SUSTAINABILITY INITIATIVES", "PROGRAM GOVERNANCE"],
+    photos: [
+  { src: "/exp/tfisc-1.jpg", position: "center center" },
+  { src: "/exp/tfisc-2.jpg", position: "center 35%" },   // ← turunin 20%
+  { src: "/exp/tfisc-3.jpg", position: "center center" },
+],
   },
   {
-    slug: "freshmen-partner",
     index: "02",
     role: "Freshmen Partner",
     organization: "BINUS University",
     period: "2025 — 2026",
-    scope: "Academic Mentorship & Student Transition",
+    scope: "Peer Mentoring & Academic Support",
     achievements: [
-      "Mentored cohorts of first-year Computer Science students through their university transition and academic curriculum.",
-      "Organized orientation sessions, campus laboratories introductions, and structured peer study circles.",
-      "Provided dedicated 1-on-1 academic counseling, fostering early retention and collaborative problem-solving skills.",
+      "Guided first-year students in initial university adaptation and academic navigation.",
+      "Provided comprehensive information on academic procedures and facilitated university communication.",
+      "Encouraged active participationn in university and organizational activities for holistic engagement.",
     ],
-    competencies: ["Peer Mentorship", "Curriculum Guidance", "Public Speaking", "Cohort Management"],
-    photos: ["/exp/fp-1.jpg", "/exp/fp-2.jpg", "/exp/fp-3.jpg"],
+    competencies: ["ACADEMIC NAVIGATION", "UNIVERSITY COMMUNICATION", "HOLISTIC ENGAGEMENT"],
+    photos: [
+      { src: "/exp/fp-1.jpg", position: "center center" },
+      { src: "/exp/fp-2.jpg", position: "center center" },
+      { src: "/exp/fp-3.jpg", position: "center center" },
+    ],
   },
   {
-    slug: "himti-member",
     index: "03",
-    role: "Member of HIMTI Semarang",
+    role: "Activist of Publication & Marketing",
     organization: "Himpunan Mahasiswa Teknik Informatika",
     period: "2025 — 2026",
-    scope: "Brand Publishing & Digital Campaigns",
+    scope: "Event Operations & Digital Campaigns",
     achievements: [
-      "Developed and executed digital branding strategies for computer science student initiatives across university channels.",
-      "Appointed to the Publication & Marketing Committee for the School of Computer Science (SoCS) Welcoming Party.",
-      "Designed digital campaign collaterals and maintained consistent messaging across student communications.",
+      "Developed and executed digital content initiatives, aligning campaign concepts across social platforms to enhance student engagement and brand visibility.",
+      "Ensured cohesive brand identity and consistent visual messaging for official HIMTI online communications.",
+      "Managed event spaces, logistics, and visual setups for welcoming events/expo, while guiding new students through high-paced onboarding sessions as Liaison Officer.",
     ],
-    competencies: ["Digital Communications", "Event Marketing", "Creative Direction", "Community Engagement"],
-    photos: ["/exp/himti-1.jpg", "/exp/himti-2.jpg", "/exp/himti-3.jpg"],
+    competencies: ["DIGITAL MARKETING","CONTENT STRATEGY", "EVENT OPERATIONS", "BRAND IDENTITY"],
+    photos: [
+      { src: "/exp/himti-1.jpg", position: "center center" },
+      { src: "/exp/himti-2.jpg", position: "center center" },
+      { src: "/exp/himti-3.jpg", position: "center center" },
+    ],
   },
   {
-    slug: "binus-promotion",
     index: "04",
     role: "Promotion Team BINUS Semarang",
     organization: "BINUS University",
     period: "2024 — 2025",
-    scope: "University Brand Advocacy & Public Outreach",
+    scope: "Outreach Operations & Prospect Data Managemenmt",
     achievements: [
-      "Produced 50+ strategic promotional contents across official institutional media channels.",
-      "Amplified social reach by 150% through data-informed content optimization and student storytelling.",
-      "Co-managed 3 flagship university-level public exhibitions and prospective student summits.",
+      "Supported recruitment operations and facilitated campus visit sessions for prospective students and stakeholders.",
+      "Handled end-to-end event coordination and on-ground logistics to drive seamless institutional outreach.",
+      "Organized and maintained post-event prospective student databases to ensure reporting accuracy and structured follow-ups.",
     ],
-    competencies: ["Institutional Branding", "Content Analytics", "Event Operations", "Public Outreach"],
+    competencies: ["EVENT COORDINATION", "DATA MANAGEMENT", "STAKEHOLDER OUTREACH"],
     showBinusLogo: true,
   },
 ];
 
-const SKILL_DOMAINS = [
-  {
-    title: "Cloud Architecture & Infrastructure",
-    icon: Cloud,
-    items: ["Google Cloud Platform (GCP)", "Google BigQuery", "IAM & Security Governance", "Cloud Load Balancing", "Compute Engine"],
-  },
-  {
-    title: "AI, Vision & Data Engineering",
-    icon: Sparkles,
-    items: ["Computer Vision (OpenCV)", "Dlib Landmark Models", "TensorFlow", "Python Data Analytics", "EAR Fatigue Algorithm"],
-  },
-  {
-    title: "Backend & Systems Development",
-    icon: Terminal,
-    items: ["Laravel", "Node.js", "PHP", "SQL / MySQL", "RESTful APIs", "Relational Database Design"],
-  },
-  {
-    title: "Design Systems & Product Strategy",
-    icon: Layers,
-    items: ["Figma", "Design Systems & Tokens", "UI/UX Prototyping", "Information Architecture", "Venture Pitching"],
-  },
-  {
-    title: "Networking & Protocols",
-    icon: Globe,
-    items: ["TCP/IP", "HTTP/HTTPS", "DNS Resolution", "IP Addressing & Subnetting", "Network Topology"],
-  },
-  {
-    title: "Core Computer Science Disciplines",
-    icon: Cpu,
-    items: ["Data Structures & Algorithms", "Object-Oriented Programming (OOP)", "Database Technology", "Software Engineering Principles", "Operating Systems"],
-  },
-];
-
-const CERTIFICATIONS: CredentialEntry[] = [
+const CERTIFICATIONS = [
   {
     index: "01",
     title: "Google Cloud Computing Foundations Certificate",
     issuer: "Google Cloud Skills Boost",
     date: "Jul 2026",
-    credentialId: "5118cf29-fa6e-40fa-96a5-9254a3bb45a1",
-    skills: ["Cloud Computing", "Google BigQuery", "Cloud Infrastructure", "API Architecture", "IAM Security"],
     url: "https://www.credly.com/earner/earned/badge/5118cf29-fa6e-40fa-96a5-9254a3bb45a1",
   },
   {
@@ -263,8 +126,6 @@ const CERTIFICATIONS: CredentialEntry[] = [
     title: "Python Programming Completion Certificate",
     issuer: "Samsung Innovation Campus (SIC)",
     date: "Oct 2025",
-    credentialId: null,
-    skills: ["Python", "Algorithm Engineering", "Applied Problem Solving", "Data Manipulation"],
     url: "https://drive.google.com/file/d/1Lip0rdOvl5S3kTSv_UmtxK_xx2BTbJ6E/view",
   },
   {
@@ -272,860 +133,680 @@ const CERTIFICATIONS: CredentialEntry[] = [
     title: "Sertifikat Profesional Google AI",
     issuer: "Google / Coursera",
     date: "Jul 2026",
-    credentialId: "8VZZ1J55CSGW",
-    skills: ["Artificial Intelligence", "Predictive Modeling", "Applied Research", "Data Analysis"],
     url: "https://www.coursera.org/account/accomplishments/specialization/8VZZ1J55CSGW",
   },
 ];
 
+const PROJECTS = [
+  {
+    id: "01",
+    tag: "CLOUD TECH & DATA",
+    title: "CLOUD, DATA & AUDIT ANALYTICS",
+    sub: "Python · Data Analytics · Audit Automation · Anomaly Detection",
+    desc: "A data-driven audit analytics platform designed to identify unusual financial transactions and support risk-based auditing. Built with Python, the project uses synthetic financial data to simulate transaction records, introduce anomalies, and establish a foundation for automated audit analysis.",
+    metric: "10,000 SYNTHETIC TRANSACTION RECORDS",
+    tags: ["Python", "Pandas", "Data Analytics", "Audit Analytics", "Anomaly Detection"],
+    link: "https://www.credly.com/earner/earned/badge/5118cf29-fa6e-40fa-96a5-9254a3bb45a1",
+  },
+  {
+    id: "02",
+    tag: "AI & COMPUTER VISION",
+    title: "Real-Time Driver Drowsiness Detection",
+    sub: "Deep Learning · Computer Vision · Driver Safety",
+    desc: "A computer vision system designed to monitor driver alertness through facial behavior analysis. Using a MobileNetV2–LSTM architecture, the project processes sequential video frames to recognize drowsiness-related behaviors and support driver safety monitoring.",
+    metric: "VIDEO-BASED DRIVER BEHAVIOR CLASSIFICATION",
+    tags: ["Python", "OpenCV", "TensorFlow", "MobileNetV2", "LSTM"],
+    link: "https://drive.google.com/drive/folders/1YsCIQjnESDeR_I5zngWsyMvWWSavdvVi",
+  },
+  {
+    id: "03",
+    tag: "VENTURE & STRATEGY",
+    title: "AKANG — Agri-Fintech Venture",
+    sub: "Business Strategy · Financial Modeling · UI/UX · Product Design",
+    desc: "Awarded Semifinalist at BINUS Startup Vaganza. An agritech-fintech platform concept designed to help livestock farmers manage assets, access financing, and connect with agricultural markets. Developed a business model integrating livestock asset management, digital financial services, and technology-enabled farming solutions.",
+    metric: "Binus Startup Vaganza Semifinalist Standing",
+    tags: ["Business Model", "Financial Modeling", "UI/UX", "Agritech", "Fintech", "Pitching"],
+    link: "https://linktr.ee/AKANG_AsetKandang?utm_source=linktree_profile_share&ltsid=452e42b4-85fa-4336-adb6-a18fded8aec4",
+  },
+  {
+    id: "04",
+    tag: "UI/UX & WEB DESIGN",
+    title: "Luxury Brand Website",
+    sub: "UI/UX Design · Front-End Development · Digital Experience",
+    desc: "Art-directed digital commerce designed in Figma. Features scalable tokenized design systems, responsive typography scales, and tactile micro-interactions.",
+    metric: "END-TO-END WEBSITE DESIGN & DEVELOPMENT",
+    tags: ["Figma", "UI/UX Prototyping", "HTML", "CSS", "JAVASCRIPT", "RESPONSIVE WEB DESIGN"],
+    link: "https://drive.google.com/drive/folders/1eHVf-AbaNsLKbyc2OqOioRyUqhHNfRuF?usp=sharing",
+  },
+  {
+    id: "05",
+    tag: "SOFTWARE ENGINEERING",
+    title: "Sistem Apotek SMA",
+    sub: "Full-Stack Web · Database Management · Web Application",
+    desc: "A web-based pharmacy management system designed to streamline inventory tracking and pharmaceutical operations. The application focuses on managing medicine records, monitoring stock availability, and organizing inventory data through a structured database and web interface.",
+    metric: "PHARMACY INVENTORY MANAGEMENT",
+    tags: ["Laravel", "PHP", "MySQL", "Full-Stack SE", "REST API"],
+    link: "https://www.instagram.com/priscilla.vln/", // Link fallback to Instagram as requested
+  },
+];
+
 /* ============================================================
-   FLAGSHIP COMPONENT: CLOUD AUDIT ANALYTICS PLATFORM
+   TYPEWRITER TEXT
    ============================================================ */
-function CloudAuditFlagship() {
-  const [activeLayer, setActiveLayer] = useState<0 | 1 | 2 | 3>(1);
+function TypewriterText({
+  text,
+  className = "",
+  speed = 65,
+  startDelay = 0,
+}: {
+  text: string;
+  className?: string;
+  speed?: number;
+  startDelay?: number;
+}) {
+  const [display, setDisplay] = useState("");
+  const [done, setDone] = useState(false);
 
-  const layers = [
-    {
-      id: 0,
-      badge: "LAYER 01",
-      title: "Audit Telemetry Ingestion",
-      tech: "GCP Pub/Sub • Cloud Logging • VPC Flow Logs",
-      desc: "Captures raw authentication events, IAM policy mutations, and cross-region resource requests across organizational GCP projects into an event streaming bus.",
-      metric: "Sub-second event bus ingest buffer",
-      status: "STREAMING ACTIVE",
-      color: "#F5C2D2",
-    },
-    {
-      id: 1,
-      badge: "LAYER 02",
-      title: "GCP Cloud Engine & BigQuery Warehouse",
-      tech: "Google BigQuery • Partition Clustered Tables • IAM Auditing",
-      desc: "High-performance data store optimized for compliance analytics. Massive audit trails are ingested, timestamp-clustered, and queried using partitioned SQL views to identify policy drift.",
-      metric: "Optimized partition queries across historical records",
-      status: "OPTIMIZED ENGINE",
-      color: "#F5C2D2",
-    },
-    {
-      id: 2,
-      badge: "LAYER 03",
-      title: "Anomaly Detection Engine",
-      tech: "Statistical Baselines • Policy Drift Heuristics • Privilege Escalation Rules",
-      desc: "Continuous evaluation algorithm scanning for abnormal administrative activity: off-hours root service key usage, rapid role escalations, and unapproved public bucket exposures.",
-      metric: "Multi-factor anomaly classification (Low to Critical)",
-      status: "HEURISTICS RUNNING",
-      color: "#F5C2D2",
-    },
-    {
-      id: 3,
-      badge: "LAYER 04",
-      title: "Compliance Ledger & Posture Telemetry",
-      tech: "Security Command Telemetry • Audit Trail Ledger • Exportable Reports",
-      desc: "Presents an immutable, regulator-ready compliance dashboard summarizing IAM adherence, flagged deviations, and architectural security hygiene scorecards.",
-      metric: "Continuous compliance reporting & audit readiness",
-      status: "AUDIT VERIFIED",
-      color: "#F5C2D2",
-    },
-  ];
+  useEffect(() => {
+    let i = 0;
+    setDisplay("");
+    setDone(false);
 
-  const simulatedAuditEvents = [
-    { time: "14:24:02 UTC", event: "iam.serviceAccounts.createKey", actor: "deploy-pipeline@gcp", status: "ANOMALY EVALUATED", sev: "NOTICE" },
-    { time: "14:23:41 UTC", event: "storage.buckets.setIamPolicy", actor: "admin-ops@binus.ac.id", status: "POLICY COMPLIANT", sev: "INFO" },
-    { time: "14:22:18 UTC", event: "bigquery.jobs.queryExecution", actor: "audit-worker-02", status: "PARTITION SCANNED", sev: "SUCCESS" },
-    { time: "14:21:05 UTC", event: "compute.firewalls.updateRule", actor: "system-orchestrator", status: "INGRESS LOCKED", sev: "VERIFIED" },
-  ];
+    const startTimer = setTimeout(() => {
+      const interval = setInterval(() => {
+        i += 1;
+        setDisplay(text.slice(0, i));
+        if (i >= text.length) {
+          clearInterval(interval);
+          setDone(true);
+        }
+      }, speed);
+      return () => clearInterval(interval);
+    }, startDelay);
+
+    return () => clearTimeout(startTimer);
+  }, [text, speed, startDelay]);
 
   return (
-    <section id="flagship" className="my-24 md:my-32 scroll-mt-20">
-      {/* Section Subhead */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 border-b border-white/[0.08] mb-10 gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-mono tracking-widest text-[#F5C2D2] uppercase mb-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#F5C2D2] animate-pulse" />
-            <span>FLAGSHIP CASE STUDY // 01</span>
-          </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight text-white">
-            Cloud Audit Analytics Platform
-          </h2>
-        </div>
-        <p className="text-xs font-mono text-white/50 max-w-md md:text-right leading-relaxed">
-          Distributed telemetry ingest, BigQuery query optimization, and heuristic anomaly detection on Google Cloud Platform.
-        </p>
-      </div>
-
-      {/* Main Console Wrapper */}
-      <div className="rounded-2xl border border-white/[0.12] bg-[#0D0D12] overflow-hidden shadow-2xl">
-        {/* Console Header Bar */}
-        <div className="px-6 py-4 border-b border-white/[0.08] bg-[#0A0A0E] flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
-              <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
-            </div>
-            <span className="text-xs font-mono tracking-wider text-white/70">
-              CONSOLE://GCP-AUDIT-ORCHESTRATOR.CORE
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs font-mono">
-            <span className="text-white/40 hidden sm:inline">DATA × CLOUD × AUDIT × ANALYTICS</span>
-            <div className="px-2.5 py-1 rounded bg-[#F5C2D2]/10 border border-[#F5C2D2]/30 text-[#F5C2D2] text-[10px] font-bold">
-              ACTIVE STACK
-            </div>
-          </div>
-        </div>
-
-        {/* Interactive Layer Navigator */}
-        <div className="grid grid-cols-2 md:grid-cols-4 border-b border-white/[0.08] bg-[#09090D]">
-          {layers.map((layer) => {
-            const isSelected = activeLayer === layer.id;
-            return (
-              <button
-                key={layer.id}
-                onClick={() => setActiveLayer(layer.id as 0 | 1 | 2 | 3)}
-                className={`p-4 text-left transition-all relative border-r border-white/[0.08] last:border-r-0 ${
-                  isSelected
-                    ? "bg-white/[0.05] text-white"
-                    : "text-white/50 hover:bg-white/[0.02] hover:text-white/80"
-                }`}
-              >
-                {isSelected && (
-                  <motion.div
-                    layoutId="activeLayerIndicator"
-                    className="absolute top-0 left-0 right-0 h-[2px] bg-[#F5C2D2]"
-                  />
-                )}
-                <div className="text-[10px] font-mono tracking-widest text-[#F5C2D2] mb-1">
-                  {layer.badge}
-                </div>
-                <div className="text-xs font-medium tracking-tight line-clamp-1">
-                  {layer.title}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Interactive Layer Visual Display */}
-        <div className="p-6 md:p-10 grid lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Layer Details & Architecture */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 text-[11px] font-mono text-[#F5C2D2] uppercase tracking-wider">
-                <Layers className="w-3.5 h-3.5" />
-                <span>{layers[activeLayer].badge} SPECIFICATION</span>
-              </div>
-              <h3 className="text-2xl md:text-3xl font-light text-white tracking-tight">
-                {layers[activeLayer].title}
-              </h3>
-              <p className="text-xs font-mono text-white/50">
-                STACK: <span className="text-white/80">{layers[activeLayer].tech}</span>
-              </p>
-            </div>
-
-            <p className="text-sm md:text-base text-white/70 leading-relaxed font-light">
-              {layers[activeLayer].desc}
-            </p>
-
-            {/* Architecture SVG Flow representation */}
-            <div className="p-4 rounded-xl border border-white/[0.08] bg-[#07070A] space-y-3">
-              <div className="flex items-center justify-between text-[11px] font-mono text-white/40">
-                <span>PIPELINE FLOW GRAPH</span>
-                <span className="text-[#F5C2D2]">{layers[activeLayer].status}</span>
-              </div>
-
-              {/* Dynamic Diagram */}
-              <div className="relative py-4 overflow-x-auto">
-                <div className="flex items-center justify-between min-w-[480px] text-xs font-mono">
-                  {/* Step 1 */}
-                  <div className={`px-3 py-2 rounded-lg border text-center transition-colors ${activeLayer === 0 ? "border-[#F5C2D2] bg-[#F5C2D2]/10 text-white font-bold" : "border-white/10 bg-white/[0.02] text-white/50"}`}>
-                    <div className="text-[9px] text-[#F5C2D2]">INGRESS</div>
-                    <div>Cloud Logging</div>
-                  </div>
-
-                  <div className="h-[1px] flex-1 bg-gradient-to-r from-[#F5C2D2]/40 to-white/20 mx-2" />
-
-                  {/* Step 2 */}
-                  <div className={`px-3 py-2 rounded-lg border text-center transition-colors ${activeLayer === 1 ? "border-[#F5C2D2] bg-[#F5C2D2]/10 text-white font-bold" : "border-white/10 bg-white/[0.02] text-white/50"}`}>
-                    <div className="text-[9px] text-[#F5C2D2]">ANALYTICS</div>
-                    <div>BigQuery Core</div>
-                  </div>
-
-                  <div className="h-[1px] flex-1 bg-gradient-to-r from-white/20 to-[#F5C2D2]/40 mx-2" />
-
-                  {/* Step 3 */}
-                  <div className={`px-3 py-2 rounded-lg border text-center transition-colors ${activeLayer === 2 ? "border-[#F5C2D2] bg-[#F5C2D2]/10 text-white font-bold" : "border-white/10 bg-white/[0.02] text-white/50"}`}>
-                    <div className="text-[9px] text-[#F5C2D2]">HEURISTIC</div>
-                    <div>Anomaly Scan</div>
-                  </div>
-
-                  <div className="h-[1px] flex-1 bg-gradient-to-r from-[#F5C2D2]/40 to-white/20 mx-2" />
-
-                  {/* Step 4 */}
-                  <div className={`px-3 py-2 rounded-lg border text-center transition-colors ${activeLayer === 3 ? "border-[#F5C2D2] bg-[#F5C2D2]/10 text-white font-bold" : "border-white/10 bg-white/[0.02] text-white/50"}`}>
-                    <div className="text-[9px] text-[#F5C2D2]">LEDGER</div>
-                    <div>Audit Report</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Link
-                href="/projects/cloud-audit"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#F5C2D2] text-[#08080A] text-xs font-bold uppercase tracking-wider hover:bg-[#ffcddc] transition-colors"
-              >
-                <span>Examine Case Study Dossier</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-
-              <a
-                href="https://www.credly.com/earner/earned/badge/5118cf29-fa6e-40fa-96a5-9254a3bb45a1"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/15 bg-white/[0.03] text-white text-xs font-mono hover:bg-white/[0.08] transition-colors"
-              >
-                <Award className="w-3.5 h-3.5 text-[#F5C2D2]" />
-                <span>Verify Google Cloud Credential</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Right Column: Live Telemetry Terminal & Key Metric */}
-          <div className="lg:col-span-5 space-y-4">
-            {/* Status Metric Box */}
-            <div className="p-4 rounded-xl border border-white/[0.08] bg-[#09090E]">
-              <div className="text-[10px] font-mono text-white/40 uppercase tracking-wider mb-1">
-                SYSTEM VERIFICATION METRIC
-              </div>
-              <div className="text-sm font-medium text-white flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#F5C2D2] shrink-0" />
-                <span>{layers[activeLayer].metric}</span>
-              </div>
-            </div>
-
-            {/* Terminal Log Stream */}
-            <div className="p-4 rounded-xl border border-white/[0.08] bg-[#050508] font-mono text-[11px] space-y-3">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-white/40">
-                <div className="flex items-center gap-2">
-                  <Activity className="w-3.5 h-3.5 text-[#F5C2D2]" />
-                  <span>AUDIT_LOG_TELEMETRY.STREAM</span>
-                </div>
-                <span className="text-[9px] text-[#F5C2D2]">LIVE HEURISTIC</span>
-              </div>
-
-              <div className="space-y-2">
-                {simulatedAuditEvents.map((ev, i) => (
-                  <div key={i} className="text-white/60 space-y-0.5">
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-white/30">{ev.time}</span>
-                      <span className="text-[#F5C2D2] font-semibold">{ev.sev}</span>
-                    </div>
-                    <div className="text-white/90 font-medium truncate">{ev.event}</div>
-                    <div className="text-white/40 text-[10px] truncate">{ev.actor} → {ev.status}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-2 border-t border-white/[0.06] text-[10px] text-white/30 flex items-center justify-between">
-                <span>PIPELINE ENCRYPTED</span>
-                <span>GCP IAM STRICT COMPLIANCE</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <span className={className}>
+      {display}
+      <motion.span
+        animate={{ opacity: done ? [1, 0.3, 1] : [1, 0, 1] }}
+        transition={{ duration: done ? 1.1 : 0.8, repeat: Infinity, ease: "easeInOut" }}
+        className="inline-block text-[#FF2E7E] ml-1"
+      >
+        |
+      </motion.span>
+    </span>
   );
 }
 
 /* ============================================================
-   PROJECT HOLDINGS COMPONENT (Inspired by Dribbble 27339006)
+   01. LOADING PAGE (Refined Luxury Editorial Preloader)
    ============================================================ */
-function ProjectHoldingsSection() {
-  const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
+function LoadingScreen({ onDone }: { onDone: () => void }) {
+  const [progress, setProgress] = useState(0);
 
-  const toggleExpand = (index: string) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
+  useEffect(() => {
+    const t = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 100) {
+          clearInterval(t);
+          setTimeout(onDone, 450);
+          return 100;
+        }
+        // Smooth organic progress increments
+        const step =
+          p < 40
+            ? Math.random() * 7 + 4
+            : p < 80
+            ? Math.random() * 5 + 3
+            : Math.random() * 3 + 1.5;
+        return Math.min(100, p + step);
+      });
+    }, 45);
+    return () => clearInterval(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0, filter: "blur(14px)" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 z-[100] bg-[#070709] flex flex-col items-center justify-center overflow-hidden selection:bg-transparent"
+    >
+      {/* Subtle, soft ambient atmospheric lighting */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.035)_0%,transparent_65%)]" />
+
+      {/* Centerpiece: PVA Editorial Monogram */}
+      <div className="relative flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center"
+        >
+          {/* PVA Monogram with luxury typographic spacing */}
+          <div className="text-3xl sm:text-4xl md:text-5xl font-light tracking-[0.4em] text-white pl-[0.4em] select-none">
+            PVA
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="mt-3 text-[0.6rem] sm:text-[0.65rem] tracking-[0.4em] uppercase text-white/40 font-light"
+          >
+            Priscilla Valencia Andow
+          </motion.div>
+        </motion.div>
+
+        {/* Minimal Hairline Progress Bar — User intuitively sees progress without 100% text */}
+        <div className="mt-12 w-48 sm:w-60">
+          <div className="h-[1.5px] w-full bg-white/[0.08] rounded-full overflow-hidden relative">
+            <motion.div
+              className="h-full bg-gradient-to-r from-white/30 via-white/80 to-white rounded-full relative"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* Understated status cue without percentage digits */}
+          <div className="mt-3 flex justify-between items-center text-[0.55rem] sm:text-[0.58rem] tracking-[0.25em] uppercase font-mono text-white/30">
+            <span>PORTFOLIO</span>
+            <span className="text-white/50 transition-opacity duration-300">
+              {progress < 40 ? "INITIALIZING" : progress < 85 ? "CURATING" : "READY"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Refined Bottom Tagline */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.8 }}
+        className="absolute bottom-10 text-[0.55rem] tracking-[0.45em] uppercase text-white/20 font-mono"
+      >
+        PVA · 2026
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ============================================================
+   02. HAMBURGER
+   ============================================================ */
+const MENU_ITEMS = [
+  { label: "About", href: "#about" },
+  { label: "Experience", href: "#experience" },
+  { label: "Certifications", href: "#certifications" },
+  { label: "Projects", href: "#projects" },
+  { label: "Contact", href: "#contact" },
+];
+
+function HamburgerMenu() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  const handleClick = (href: string) => {
+    setOpen(false);
+    setTimeout(() => document.querySelector(href)?.scrollIntoView({ behavior: "smooth" }), 400);
   };
 
   return (
-    <section id="projects" className="my-24 md:my-32 scroll-mt-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 border-b border-white/[0.08] mb-8 gap-4">
-        <div>
-          <div className="text-[11px] font-mono tracking-widest text-[#F5C2D2] uppercase mb-2">
-            HOLDINGS & VENTURES // ARCHIVE
-          </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight text-white">
-            Engineering & Product Index
-          </h2>
-        </div>
-        <p className="text-xs font-mono text-white/50 max-w-sm md:text-right leading-relaxed">
-          Interactive catalog of selected software developments, venture pitch decks, and interface prototypes.
-        </p>
-      </div>
+    <>
+      {/* Top Left Monogram Logo */}
+      <a
+        href="#"
+        className="fixed top-6 left-6 z-[80] px-3.5 py-2 rounded-full bg-[#0a0a0c]/70 backdrop-blur-md border border-white/10 flex items-center justify-center text-xs font-semibold tracking-[0.25em] text-white hover:border-[#FF2E7E] hover:text-[#FF2E7E] transition-all uppercase"
+      >
+        PVA
+      </a>
 
-      <div className="divide-y divide-white/[0.08] border-y border-white/[0.08]">
-        {PROJECT_HOLDINGS.map((p) => {
-          const isExpanded = expandedIndex === p.index;
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Open menu"
+        className="fixed top-6 right-6 z-[80] w-12 h-12 rounded-full bg-[#0a0a0c]/70 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center gap-[5px] group hover:border-[#FF2E7E] hover:bg-[#FF2E7E]/10 transition-colors"
+      >
+        <span className="w-5 h-[1.5px] bg-white group-hover:bg-[#FF2E7E] transition-colors" />
+        <span className="w-5 h-[1.5px] bg-white group-hover:bg-[#FF2E7E] transition-colors" />
+        <span className="w-3 h-[1.5px] bg-white group-hover:bg-[#FF2E7E] transition-colors self-end mr-[14px]" />
+      </button>
 
-          return (
-            <div key={p.index} className="group transition-colors hover:bg-white/[0.02]">
-              <div
-                onClick={() => toggleExpand(p.index)}
-                className="py-6 md:py-8 px-2 md:px-4 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                {/* Left: Index & Titles */}
-                <div className="flex items-start md:items-center gap-4 md:gap-8">
-                  <span className="text-xs font-mono text-[#F5C2D2] w-8">
-                    {p.index}
-                  </span>
-                  <div>
-                    <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-1">
-                      {p.category}
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-normal text-white group-hover:text-[#F5C2D2] transition-colors">
-                      {p.title}
-                    </h3>
-                  </div>
-                </div>
-
-                {/* Right: Role, Year & Expand Indicator */}
-                <div className="flex items-center justify-between md:justify-end gap-6 pl-12 md:pl-0">
-                  <div className="text-left md:text-right text-xs font-mono">
-                    <div className="text-white/80">{p.role}</div>
-                    <div className="text-white/40">{p.period}</div>
-                  </div>
-                  <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/60 group-hover:border-[#F5C2D2] group-hover:text-[#F5C2D2] transition-colors">
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${
-                        isExpanded ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Expandable Drawer */}
-              <AnimatePresence>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.35, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="pb-8 px-4 md:px-16 pt-2 border-t border-white/[0.04] grid md:grid-cols-12 gap-8 text-sm">
-                      <div className="md:col-span-7 space-y-4">
-                        <p className="text-white/70 leading-relaxed font-light">
-                          {p.desc}
-                        </p>
-                        <div className="space-y-2 pt-2">
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">
-                            CORE ENGINEERING HIGHLIGHTS:
-                          </div>
-                          <ul className="space-y-1.5">
-                            {p.highlights.map((h, i) => (
-                              <li key={i} className="text-xs text-white/60 flex items-start gap-2 font-mono">
-                                <span className="text-[#F5C2D2] mt-0.5">▹</span>
-                                <span>{h}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      <div className="md:col-span-5 space-y-4">
-                        <div>
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-2">
-                            TECHNOLOGY STACK:
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {p.tags.map((t) => (
-                              <span
-                                key={t}
-                                className="px-2.5 py-1 text-xs font-mono rounded border border-white/10 bg-white/[0.03] text-white/75"
-                              >
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="pt-4 flex flex-wrap items-center gap-3">
-                          {p.link && (
-                            <a
-                              href={p.link}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F5C2D2] text-[#08080A] text-xs font-bold uppercase tracking-wider hover:bg-[#ffcddc] transition-colors"
-                            >
-                              <span>Open External Link</span>
-                              <ArrowUpRight className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                          <Link
-                            href={`/projects/${p.slug}`}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 bg-white/[0.03] text-white text-xs font-mono hover:bg-white/[0.08] transition-colors"
-                          >
-                            <span>Detailed Specification</span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-[#F5C2D2]" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   EDITORIAL ABOUT & LEADERSHIP PHILOSOPHY
-   ============================================================ */
-function EditorialProfileSection() {
-  return (
-    <section id="about" className="my-24 md:my-32 scroll-mt-20">
-      <div className="pb-6 border-b border-white/[0.08] mb-12">
-        <div className="text-[11px] font-mono tracking-widest text-[#F5C2D2] uppercase mb-2">
-          PROFILE // PEDAGOGY & PHILOSOPHY
-        </div>
-        <h2 className="text-3xl md:text-5xl font-light tracking-tight text-white max-w-3xl">
-          Bridging technical systems with human impact.
-        </h2>
-      </div>
-
-      <div className="grid md:grid-cols-12 gap-10">
-        {/* Left Manifesto */}
-        <div className="md:col-span-7 space-y-6">
-          <p className="text-lg md:text-xl text-white/80 font-light leading-relaxed">
-            I am a Computer Science undergraduate at BINUS University specializing in Cloud Technology. My work operates at the intersection of dependable system architecture, machine vision, and community-centered innovation.
-          </p>
-          <p className="text-sm md:text-base text-white/60 font-light leading-relaxed">
-            Serving as the Regional Chairman of TFISC Semarang and achieving Semifinalist standing in the BINUS Startup Vaganza, I have cultivated cross-functional agility—leading teams of 70+ students, aligning business models, and building software that directly solves real human friction.
-          </p>
-          <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0B0B0F] space-y-2">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-[#F5C2D2]">
-              ASPIRATION & TECHNICAL PATH
-            </div>
-            <p className="text-xs md:text-sm text-white/70 leading-relaxed font-light">
-              Deeply driven to join the Apple Developer Academy to harness native ecosystems, spatial computing principles, and high-craft interface engineering to build transformative mobile solutions for community welfare.
-            </p>
-          </div>
-        </div>
-
-        {/* Right Structured Dossier */}
-        <div className="md:col-span-5 space-y-4">
-          <div className="p-5 rounded-xl border border-white/[0.08] bg-[#09090D] space-y-4">
-            <div className="text-[11px] font-mono uppercase tracking-wider text-white/40 pb-2 border-b border-white/[0.08]">
-              ACADEMIC & CIVIC VITAE
-            </div>
-
-            <div className="space-y-3 text-xs font-mono">
-              <div>
-                <span className="text-white/40">CURRENT INSTITUTION:</span>
-                <div className="text-white mt-0.5">BINUS University (SoCS)</div>
-              </div>
-              <div>
-                <span className="text-white/40">SPECIALIZATION FOCUS:</span>
-                <div className="text-white mt-0.5">Cloud Technology & Applied AI Systems</div>
-              </div>
-              <div>
-                <span className="text-white/40">EXECUTIVE TENURE:</span>
-                <div className="text-white mt-0.5">Regional Chairman, TFISC Semarang</div>
-              </div>
-              <div>
-                <span className="text-white/40">VENTURE RECOGNITION:</span>
-                <div className="text-[#F5C2D2] mt-0.5">Semifinalist, BINUS Startup Vaganza</div>
-              </div>
-              <div>
-                <span className="text-white/40">PRIMARY TOOLS:</span>
-                <div className="text-white mt-0.5">GCP, BigQuery, Python, Laravel, Figma</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   TECHNICAL CAPABILITIES MATRIX (SKILLS)
-   ============================================================ */
-function TechnicalMatrixSection() {
-  return (
-    <section id="tech" className="my-24 md:my-32 scroll-mt-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 border-b border-white/[0.08] mb-10 gap-4">
-        <div>
-          <div className="text-[11px] font-mono tracking-widest text-[#F5C2D2] uppercase mb-2">
-            ENGINEERING CAPABILITIES // MATRIX
-          </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight text-white">
-            Technical Repertoire
-          </h2>
-        </div>
-        <p className="text-xs font-mono text-white/50 max-w-sm md:text-right leading-relaxed">
-          Systematic index of foundational competencies, cloud frameworks, and applied engineering toolsets.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {SKILL_DOMAINS.map((domain, idx) => {
-          const IconComponent = domain.icon;
-          return (
-            <div
-              key={idx}
-              className="p-6 rounded-xl border border-white/[0.08] bg-[#0A0A0E] hover:border-white/20 transition-colors flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/10 flex items-center justify-center">
-                    <IconComponent className="w-4 h-4 text-[#F5C2D2]" />
-                  </div>
-                  <h3 className="text-sm font-medium text-white">
-                    {domain.title}
-                  </h3>
-                </div>
-
-                <div className="space-y-1.5">
-                  {domain.items.map((item) => (
-                    <div
-                      key={item}
-                      className="text-xs font-mono text-white/60 flex items-center gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-[#F5C2D2]" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 pt-3 border-t border-white/[0.04] text-[10px] font-mono text-white/30">
-                DOMAIN 0{idx + 1}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   EXPERIENCE & LEADERSHIP LEDGER
-   ============================================================ */
-function ExperienceLedgerSection({
-  onSelectExperience,
-}: {
-  onSelectExperience: (exp: ExperienceEntry) => void;
-}) {
-  return (
-    <section id="experience" className="my-24 md:my-32 scroll-mt-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 border-b border-white/[0.08] mb-10 gap-4">
-        <div>
-          <div className="text-[11px] font-mono tracking-widest text-[#F5C2D2] uppercase mb-2">
-            LEADERSHIP & SERVICE // LEDGER
-          </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight text-white">
-            Organizational Impact
-          </h2>
-        </div>
-        <p className="text-xs font-mono text-white/50 max-w-sm md:text-right leading-relaxed">
-          Record of executive responsibilities, community stewardship, and institutional representation.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        {EXPERIENCES.map((exp) => (
-          <div
-            key={exp.slug}
-            onClick={() => onSelectExperience(exp)}
-            className="p-6 md:p-8 rounded-2xl border border-white/[0.08] bg-[#0A0A0E] hover:border-[#F5C2D2]/40 transition-all cursor-pointer group flex flex-col justify-between"
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-[90] bg-[#0a0a0c]"
           >
-            <div>
-              <div className="flex items-center justify-between text-xs font-mono text-white/40 mb-3">
-                <span className="text-[#F5C2D2]">{`LEDGER // ${exp.index}`}</span>
-                <span>{exp.period}</span>
-              </div>
-
-              <h3 className="text-xl font-normal text-white group-hover:text-[#F5C2D2] transition-colors mb-1">
-                {exp.role}
-              </h3>
-              <p className="text-xs font-mono text-white/50 mb-4">
-                {exp.organization} • {exp.scope}
-              </p>
-
-              <ul className="space-y-2 mb-6">
-                {exp.achievements.slice(0, 2).map((ach, i) => (
-                  <li key={i} className="text-xs text-white/70 leading-relaxed flex items-start gap-2">
-                    <span className="text-[#F5C2D2] mt-0.5 text-[10px]">▹</span>
-                    <span>{ach}</span>
-                  </li>
-                ))}
-              </ul>
+            {/* Top Bar inside Menu Modal */}
+            <div className="absolute top-6 left-6 z-10 text-xs font-semibold tracking-[0.25em] text-white/50 uppercase">
+              PVA
             </div>
-
-            <div>
-              <div className="flex flex-wrap gap-1.5 pt-4 border-t border-white/[0.06] mb-4">
-                {exp.competencies.map((c) => (
-                  <span
-                    key={c}
-                    className="px-2 py-0.5 text-[10px] font-mono rounded bg-white/[0.03] border border-white/10 text-white/60"
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#FF2E7E]/10 blur-[160px]"
+            />
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 bg-white/[0.02] flex items-center justify-center hover:border-[#FF2E7E] hover:text-[#FF2E7E] transition-colors z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="relative h-full flex flex-col justify-center px-8 sm:px-16 md:px-24">
+              <div className="text-[0.65rem] tracking-[0.4em] uppercase text-[#FF2E7E] mb-8">
+                — Navigation
+              </div>
+              <nav className="space-y-2">
+                {MENU_ITEMS.map((item, i) => (
+                  <motion.button
+                    key={item.href}
+                    initial={{ opacity: 0, x: -40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: 0.1 + i * 0.07, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    onClick={() => handleClick(item.href)}
+                    className="group block text-left w-full py-3"
                   >
-                    {c}
-                  </span>
+                    <div className="flex items-baseline gap-6">
+                      <span className="text-[0.65rem] tracking-[0.2em] text-white/25 font-mono">
+                        0{i + 1}
+                      </span>
+                      <span className="text-white text-[clamp(2rem,7vw,4.5rem)] font-semibold tracking-[-0.04em] leading-none group-hover:text-[#FF2E7E] transition-colors">
+                        {item.label}
+                      </span>
+                    </div>
+                  </motion.button>
                 ))}
-              </div>
+              </nav>
 
-              <div className="flex items-center justify-between text-xs font-mono text-[#F5C2D2]">
-                <span>Inspect Detailed Record</span>
-                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                className="mt-10"
+              >
+                <a
+                  href={PROFILE.cvUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-3 text-[#FF2E7E] text-[0.7rem] tracking-[0.3em] uppercase border-b border-[#FF2E7E]/40 pb-2 hover:border-[#FF2E7E] transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download CV / Connect
+                </a>
+              </motion.div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+/* ============================================================
+   03. HERO — Priscilla stay, Valencia Andow diketik
+   ============================================================ */
+function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const imgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const imgOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.15]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
+  return (
+    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-[#0a0a0c]">
+      <motion.div style={{ scale: imgScale, y: imgY, opacity: imgOpacity }} className="absolute inset-0 z-0">
+        <Image
+          src={PROFILE.headshot}
+          alt={PROFILE.fullName}
+          fill
+          priority
+          className="object-cover object-[center_35%] grayscale-[0.85] brightness-[0.55]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0c]/50 via-[#0a0a0c]/40 to-[#0a0a0c]" />
+      </motion.div>
+
+      <motion.div
+        style={{ y: contentY, opacity: contentOpacity }}
+        className="relative z-10 h-full flex flex-col items-center justify-end pb-32 sm:pb-40 px-6 text-center"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="text-[0.65rem] tracking-[0.45em] uppercase text-[#FF2E7E] mb-6"
+        >
+          {PROFILE.brand} — CLOUD, AI & SOFTWARE ENGINEERING
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="text-white font-semibold leading-[0.95] tracking-[-0.04em] text-[clamp(2.5rem,9vw,6.5rem)]"
+        >
+          Priscilla
+          <br />
+          <span className="font-light text-white/45">
+            <TypewriterText text="Valencia Andow" speed={70} startDelay={1000} />
+          </span>
+        </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 2.6 }}
+          className="mt-8 flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-[0.65rem] tracking-[0.3em] uppercase text-white/40"
+        >
+          <span>Cloud Engineer</span>
+          <span className="w-1 h-1 rounded-full bg-[#FF2E7E]" />
+          <span>Artificial Intelligence</span>
+          <span className="w-1 h-1 rounded-full bg-[#FF2E7E]" />
+          <span>Software Engineering</span>
+          <span className="w-1 h-1 rounded-full bg-[#FF2E7E]" />
+          <span>Tech Consulting</span>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 3, duration: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3"
+      >
+        <span className="text-white/30 text-[0.55rem] tracking-[0.4em] uppercase">Scroll</span>
+        <motion.div
+          animate={{ scaleY: [0.3, 1, 0.3], opacity: [0.2, 0.8, 0.2] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-px h-10 bg-gradient-to-b from-[#FF2E7E] to-transparent origin-top"
+        />
+      </motion.div>
+    </section>
+  );
+}
+
+/* ============================================================
+   04. MARQUEE
+   ============================================================ */
+function Marquee() {
+  const items = [
+    "CLOUD ARCHITECTURE (GCP)",
+    "AI & MACHINE LEARNING",
+    "SOFTWARE ENGINEERING",
+    "TECHNOLOGY CONSULTING",
+    "DATA ANALYTICS & BIGQUERY",
+    "COMPUTER VISION & EDGE AI",
+    "UI/UX & DESIGN SYSTEMS",
+    "TFISC REGIONAL PRESIDENT",
+    "STARTUP VAGANZA SEMIFINALIST",
+    "PVA — PRISCILLA V.A."
+  ];
+  return (
+    <div className="relative py-6 bg-[#FF2E7E] overflow-hidden border-y border-[#FF2E7E]">
+      <motion.div
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        className="flex items-center gap-12 whitespace-nowrap"
+      >
+        {[...items, ...items].map((t, i) => (
+          <div key={i} className="flex items-center gap-12 shrink-0">
+            <span className="text-[#0a0a0c] font-semibold tracking-[0.2em] uppercase text-xs sm:text-sm">{t}</span>
+            <span className="text-[#0a0a0c]/40 text-lg">~</span>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   EXPERIENCE DETAIL MODAL
-   ============================================================ */
-function ExperienceDetailModal({
-  exp,
-  onClose,
-}: {
-  exp: ExperienceEntry;
-  onClose: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-white/15 bg-[#0C0C10] p-6 md:p-8 shadow-2xl"
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full border border-white/10 bg-white/[0.03] text-white/70 hover:text-white transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        <div className="text-[11px] font-mono text-[#F5C2D2] uppercase tracking-wider mb-2">
-          {`${exp.organization} // ${exp.period}`}
-        </div>
-        <h3 className="text-2xl font-light text-white mb-2">{exp.role}</h3>
-        <p className="text-xs font-mono text-white/40 mb-6">{exp.scope}</p>
-
-        {/* Photos or Logo Render */}
-        {exp.showBinusLogo ? (
-          <div className="mb-6 p-6 rounded-xl border border-white/[0.08] bg-[#07070A] flex flex-col items-center justify-center gap-3">
-            <div className="relative w-36 h-20">
-              <Image
-                src="/logo.png"
-                alt="BINUS University Logo"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <span className="text-xs font-mono text-white/50">BINUS University Official Advocacy</span>
-          </div>
-        ) : exp.photos && exp.photos.length > 0 ? (
-          <div className="mb-6">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-3">
-              DOCUMENTATION ARCHIVE:
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {exp.photos.map((src, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-video rounded-lg overflow-hidden border border-white/10 bg-black"
-                >
-                  <Image
-                    src={src}
-                    alt={`${exp.role} photo ${i + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        <div className="space-y-4 mb-6">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">
-            RECORDED ACHIEVEMENTS & CONTRIBUTIONS:
-          </div>
-          <ul className="space-y-2">
-            {exp.achievements.map((ach, i) => (
-              <li key={i} className="text-sm text-white/75 leading-relaxed flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#F5C2D2] shrink-0 mt-0.5" />
-                <span>{ach}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="pt-4 border-t border-white/[0.08]">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-white/40 mb-2">
-            EXECUTIVE SKILLS DEPLOYED:
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {exp.competencies.map((c) => (
-              <span
-                key={c}
-                className="px-2.5 py-1 text-xs font-mono rounded bg-white/[0.04] border border-white/10 text-white/80"
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
       </motion.div>
     </div>
   );
 }
 
 /* ============================================================
-   VERIFIED CREDENTIAL VAULT
+   REVEAL
    ============================================================ */
-function CredentialVaultSection() {
+function Reveal({
+  children, delay = 0, y = 40, className = "",
+}: { children: React.ReactNode; delay?: number; y?: number; className?: string }) {
   return (
-    <section id="certifications" className="my-24 md:my-32 scroll-mt-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 border-b border-white/[0.08] mb-10 gap-4">
-        <div>
-          <div className="text-[11px] font-mono tracking-widest text-[#F5C2D2] uppercase mb-2">
-            ACCREDITATIONS // VERIFIED VAULT
-          </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-tight text-white">
-            Official Credentials
-          </h2>
-        </div>
-        <p className="text-xs font-mono text-white/50 max-w-sm md:text-right leading-relaxed">
-          Industry-certified verifications in cloud computing architectures, artificial intelligence, and programming.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {CERTIFICATIONS.map((cert) => (
-          <a
-            key={cert.index}
-            href={cert.url}
-            target="_blank"
-            rel="noreferrer"
-            className="p-6 rounded-2xl border border-white/[0.08] bg-[#0A0A0E] hover:border-[#F5C2D2]/50 transition-all flex flex-col justify-between group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-xs font-mono text-white/40 mb-4">
-                <span className="text-[#F5C2D2]">{cert.index}</span>
-                <span>{cert.date}</span>
-              </div>
-
-              <h3 className="text-base font-normal text-white group-hover:text-[#F5C2D2] transition-colors mb-2 leading-snug">
-                {cert.title}
-              </h3>
-              <p className="text-xs font-mono text-white/50 mb-4">
-                {cert.issuer}
-              </p>
-
-              {cert.credentialId && (
-                <div className="p-2.5 rounded bg-white/[0.02] border border-white/[0.06] text-[11px] font-mono text-white/60 break-all mb-4">
-                  ID: {cert.credentialId}
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-1 mb-6">
-                {cert.skills.map((s) => (
-                  <span
-                    key={s}
-                    className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F5C2D2]/5 border border-[#F5C2D2]/15 text-[#F5C2D2]/80"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-xs font-mono text-[#F5C2D2]">
-              <span>Verify Direct Credential</span>
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
+    <motion.div
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
 
 /* ============================================================
-   EDITORIAL COLOPHON & INQUIRIES
+   SCRAMBLE TEXT
    ============================================================ */
-function ColophonContactSection() {
+function ScrambleText({ text, className = "" }: { text: string; className?: string }) {
+  const [display, setDisplay] = useState(text);
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%&*";
+
+  const scramble = useCallback(() => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplay(
+        text
+          .split("")
+          .map((_, i) => (i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]))
+          .join("")
+      );
+      iteration += 1 / 2;
+      if (iteration >= text.length) clearInterval(interval);
+    }, 40);
+  }, [text]);
+
   return (
-    <section id="contact" className="my-24 md:my-32 scroll-mt-20">
-      <div className="rounded-3xl border border-white/[0.12] bg-[#09090D] p-8 md:p-16 relative overflow-hidden">
-        <div className="max-w-3xl space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/20 bg-green-500/5 text-[11px] font-mono text-green-400">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
-            <span>AVAILABLE FOR INCOMING ROLES & RESEARCH COLLABORATION</span>
-          </div>
+    <span className={className} onMouseEnter={scramble}>
+      {display}
+    </span>
+  );
+}
 
-          <h2 className="text-3xl md:text-6xl font-light tracking-tight text-white leading-tight">
-            Initiate a conversation or inquiry.
+/* ============================================================
+   05. ABOUT
+   ============================================================ */
+function About() {
+  return (
+    <section id="about" className="relative py-32 sm:py-44 bg-[#0a0a0c] overflow-hidden">
+      <motion.div
+        animate={{ x: [0, 60, -40, 0], y: [0, -30, 40, 0], scale: [1, 1.15, 0.95, 1] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-20 left-10 w-[400px] h-[400px] rounded-full bg-[#FF2E7E]/[0.08] blur-[120px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ x: [0, -50, 30, 0], y: [0, 40, -30, 0], scale: [1, 1.1, 0.9, 1] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-20 right-10 w-[500px] h-[500px] rounded-full bg-[#FF2E7E]/[0.05] blur-[140px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        className="absolute -right-40 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-white/[0.04] pointer-events-none"
+      >
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-16 rounded-full border border-dashed border-[#FF2E7E]/15"
+        />
+      </motion.div>
+
+      <div className="relative max-w-5xl mx-auto px-6 text-center">
+        <Reveal>
+          <div className="text-[0.65rem] tracking-[0.4em] uppercase text-[#FF2E7E] mb-10">— Strategic Profile</div>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <h2 className="text-white font-semibold leading-[1.05] tracking-[-0.03em] text-[clamp(1.8rem,4.5vw,3.5rem)]">
+            Where{" "}
+            <span className="text-[#FF2E7E] font-light">
+              <ScrambleText text="technology consulting" />
+            </span>
+            <br />
+            meets cloud & AI engineering.
           </h2>
-
-          <p className="text-base md:text-lg text-white/60 font-light leading-relaxed">
-            Open for software engineering opportunities, applied cloud research, and creative technology collaborations.
+        </Reveal>
+        <Reveal delay={0.25}>
+          <p className="mt-10 text-white/60 font-light max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
+           Targeting technology consulting roles. I combine analytical problem-solving with hands-on technical execution — bridging <span className="text-white font-normal">Cloud Technology (GCP & BigQuery)</span>, intelligent <span className="text-white font-normal">AI & Machine Learning</span>, robust <span className="text-white font-normal">Software Engineering</span>, and <span className="text-[#FF2E7E] font-normal">organizational leadership</span>.
           </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 
-          <div className="pt-4 flex flex-wrap gap-4 items-center">
-            <a
-              href={`mailto:${USER_PROFILE.email}`}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#F5C2D2] text-[#08080A] text-xs font-bold uppercase tracking-wider hover:bg-[#ffcddc] transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              <span>{USER_PROFILE.email}</span>
-            </a>
+/* ============================================================
+   06. EXPERIENCE
+   ============================================================ */
+function Experience() {
+  const [active, setActive] = useState(0);
 
-            <a
-              href={USER_PROFILE.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/15 bg-white/[0.02] text-white text-xs font-mono hover:bg-white/[0.08] transition-colors"
-            >
-              <Linkedin className="w-4 h-4 text-[#F5C2D2]" />
-              <span>LinkedIn Dossier</span>
-            </a>
-
-            <a
-              href={USER_PROFILE.github}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/15 bg-white/[0.02] text-white text-xs font-mono hover:bg-white/[0.08] transition-colors"
-            >
-              <Github className="w-4 h-4 text-[#F5C2D2]" />
-              <span>GitHub Repositories</span>
-            </a>
+  return (
+    <section id="experience" className="py-24 sm:py-32 bg-[#0a0a0c] border-t border-white/[0.03]">
+      <div className="max-w-7xl mx-auto px-6">
+        <Reveal>
+          <div className="flex items-end justify-between border-b border-white/[0.06] pb-6 mb-16">
+            <div>
+              <div className="text-[0.65rem] tracking-[0.4em] uppercase text-[#FF2E7E] mb-3">— Experience</div>
+              <h3 className="text-white font-semibold tracking-[-0.02em] text-[clamp(1.8rem,4vw,3rem)]">
+                Leadership Track Record
+              </h3>
+            </div>
+            <span className="text-white/25 text-[0.65rem] tracking-[0.2em] uppercase hidden sm:block">04 Roles</span>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="mt-16 pt-8 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-white/40">
-          <div>
-            {USER_PROFILE.name} • {USER_PROFILE.institution}
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4 space-y-2">
+            {EXPERIENCES.map((e, i) => (
+              <motion.button
+                key={e.index}
+                onClick={() => setActive(i)}
+                whileHover={{ x: 6 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className={`w-full text-left p-5 border transition-colors relative group ${
+                  active === i ? "border-[#FF2E7E]/40 bg-[#FF2E7E]/[0.04]" : "border-white/[0.06] hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <span className={`text-[0.65rem] tracking-[0.2em] font-mono mt-1 ${active === i ? "text-[#FF2E7E]" : "text-white/30"}`}>
+                    {e.index}
+                  </span>
+                  <div className="flex-1">
+                    <div className={`text-sm font-semibold tracking-tight leading-snug ${active === i ? "text-white" : "text-white/60"}`}>
+                      {e.role}
+                    </div>
+                    <div className="text-[0.7rem] text-white/35 mt-1 font-light">{e.period}</div>
+                  </div>
+                </div>
+                {active === i && (
+                  <motion.div layoutId="expActiveBar" className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#FF2E7E]" />
+                )}
+              </motion.button>
+            ))}
           </div>
-          <div>
-            DESIGNED & CRAFTED SPECIFICALLY FOR PRISCILLA VALENCIA ANDOW
+
+          <div className="lg:col-span-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="border border-white/[0.06] p-8 sm:p-12 bg-[#0e0e12]"
+              >
+                <div className="text-[#FF2E7E] text-[0.65rem] tracking-[0.25em] uppercase mb-4">
+                  {EXPERIENCES[active].scope}
+                </div>
+                <h4 className="text-white font-semibold text-2xl sm:text-3xl tracking-[-0.02em] mb-2">
+                  {EXPERIENCES[active].role}
+                </h4>
+                <div className="text-white/40 text-sm font-light mb-8">
+                  {EXPERIENCES[active].organization}
+                </div>
+
+                {EXPERIENCES[active].showBinusLogo ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.15, duration: 0.5 }}
+                    className="mb-8 p-8 rounded-lg border border-white/[0.06] bg-[#0a0a0c] flex flex-col items-center gap-3"
+                  >
+                    <div className="relative w-40 h-20">
+                      <Image src="/logo.png" alt="BINUS Logo" fill className="object-contain" />
+                    </div>
+                    <span className="text-[0.65rem] tracking-[0.2em] uppercase text-white/40">
+                      BINUS University Official Advocacy
+                    </span>
+                  </motion.div>
+                ) : EXPERIENCES[active].photos ? (
+                  <div className="grid grid-cols-3 gap-3 mb-8">
+                    {EXPERIENCES[active].photos!.map((photo, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 + i * 0.1, duration: 0.6 }}
+                        whileHover={{ scale: 1.04, zIndex: 10 }}
+                        className="relative aspect-video overflow-hidden border border-white/[0.06] bg-black"
+                      >
+                        <Image
+                          src={photo.src}
+                          alt={`${EXPERIENCES[active].role} ${i + 1}`}
+                          fill
+                          className="object-cover"
+                          style={{ objectPosition: photo.position }}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                          className="absolute inset-0 bg-[#FF2E7E]/20"
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : null}
+
+                <ul className="space-y-3 mb-8">
+                  {EXPERIENCES[active].achievements.map((a, i) => (
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.15 + i * 0.08 }}
+                      className="flex items-start gap-3 text-sm text-white/60 font-light leading-relaxed"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-[#FF2E7E] shrink-0 mt-0.5" />
+                      <span>{a}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+
+                <div className="flex flex-wrap gap-2 pt-6 border-t border-white/[0.06]">
+                  {EXPERIENCES[active].competencies.map((c) => (
+                    <span key={c} className="text-[0.6rem] tracking-[0.15em] uppercase text-white/50 border border-white/10 rounded-full px-3 py-1.5">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -1134,158 +815,343 @@ function ColophonContactSection() {
 }
 
 /* ============================================================
-   MAIN COMPONENT
+   07. CERTIFICATIONS
+   ============================================================ */
+function Certifications() {
+  return (
+    <section id="certifications" className="py-24 sm:py-32 bg-[#0a0a0c] border-t border-white/[0.03]">
+      <div className="max-w-7xl mx-auto px-6">
+        <Reveal>
+          <div className="flex items-end justify-between border-b border-white/[0.06] pb-6 mb-16">
+            <div>
+              <div className="text-[0.65rem] tracking-[0.4em] uppercase text-[#FF2E7E] mb-3">— Certifications</div>
+              <h3 className="text-white font-semibold tracking-[-0.02em] text-[clamp(1.8rem,4vw,3rem)]">
+                Verified Credentials
+              </h3>
+            </div>
+            <span className="text-white/25 text-[0.65rem] tracking-[0.2em] uppercase hidden sm:block">03 Badges</span>
+          </div>
+        </Reveal>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {CERTIFICATIONS.map((c, i) => (
+            <Reveal key={c.index} delay={i * 0.1}>
+              <motion.a
+                href={c.url}
+                target="_blank"
+                rel="noreferrer"
+                whileHover={{ y: -6 }}
+                transition={{ type: "spring", damping: 22, stiffness: 300 }}
+                className="group block relative border border-white/[0.06] hover:border-[#FF2E7E]/40 p-7 h-full bg-[#0e0e12] transition-colors"
+              >
+                <motion.div
+                  className="absolute top-0 left-0 h-[2px] bg-[#FF2E7E]"
+                  initial={{ width: "0%" }}
+                  whileHover={{ width: "100%" }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                />
+                <div className="flex items-start justify-between mb-6">
+                  <Award className="w-8 h-8 text-[#FF2E7E]" strokeWidth={1.2} />
+                  <span className="text-[0.6rem] tracking-[0.2em] text-white/30 font-mono">{c.date}</span>
+                </div>
+                <h4 className="text-white font-semibold text-base leading-snug mb-2 group-hover:text-[#FF2E7E] transition-colors">
+                  {c.title}
+                </h4>
+                <p className="text-white/40 text-xs font-light mb-6">{c.issuer}</p>
+                <div className="flex items-center gap-1.5 text-[#FF2E7E] text-[0.65rem] tracking-[0.15em] uppercase">
+                  <span>Verify</span>
+                  <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+              </motion.a>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   08. PROJECTS
+   ============================================================ */
+function ProjectsWhite() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const bgRotate = useTransform(scrollYProgress, [0, 1], [0, 25]);
+  const circleScale = useTransform(scrollYProgress, [0, 1], [0.6, 1.4]);
+  const xMove = useTransform(scrollYProgress, [0, 1], [0, -80]);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const [hoverActive, setHoverActive] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+    if (!hoverActive) setHoverActive(true);
+  };
+
+  const handleMouseLeave = () => setHoverActive(false);
+
+  const liquidX = useSpring(mouseX, { damping: 25, stiffness: 150 });
+  const liquidY = useSpring(mouseY, { damping: 25, stiffness: 150 });
+  const gooeyBg = useMotionTemplate`radial-gradient(circle 250px at ${liquidX}px ${liquidY}px, rgba(255,46,126,0.18), transparent 70%)`;
+
+  return (
+    <section
+      id="projects"
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative py-32 sm:py-40 bg-[#F5F3EF] text-[#0a0a0c] overflow-hidden"
+    >
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{ background: gooeyBg, opacity: hoverActive ? 1 : 0 }}
+        transition={{ opacity: { duration: 0.4 } }}
+      />
+
+      <motion.div
+        style={{ rotate: bgRotate, x: xMove }}
+        className="absolute -top-40 -left-40 w-[700px] h-[700px] pointer-events-none opacity-[0.5]"
+      >
+        <svg viewBox="0 0 600 600" className="w-full h-full">
+          <defs>
+            <linearGradient id="blobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FF2E7E" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#FF2E7E" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+          <motion.path
+            fill="url(#blobGrad)"
+            animate={{
+              d: [
+                "M300,100 C400,100 500,150 500,300 C500,450 400,500 300,500 C200,500 100,450 100,300 C100,150 200,100 300,100 Z",
+                "M300,80 C430,80 520,180 520,300 C520,430 420,520 300,520 C170,520 80,420 80,300 C80,170 170,80 300,80 Z",
+                "M300,120 C380,100 480,170 490,300 C500,440 390,510 300,510 C210,510 100,440 110,300 C120,170 220,140 300,120 Z",
+                "M300,100 C400,100 500,150 500,300 C500,450 400,500 300,500 C200,500 100,450 100,300 C100,150 200,100 300,100 Z",
+              ],
+            }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        style={{ scale: circleScale }}
+        className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-[#FF2E7E]/[0.07] blur-[120px] pointer-events-none"
+      />
+
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.35]" viewBox="0 0 1200 800" preserveAspectRatio="none">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <motion.path
+            key={i}
+            d={`M -100 ${150 + i * 110} C 300 ${100 + i * 110}, 600 ${200 + i * 110}, 1300 ${130 + i * 110}`}
+            stroke="#0a0a0c"
+            strokeWidth="0.6"
+            fill="none"
+            initial={{ pathLength: 0, opacity: 0 }}
+            whileInView={{ pathLength: 1, opacity: 0.3 }}
+            viewport={{ once: true }}
+            transition={{ duration: 2.2, delay: i * 0.15, ease: [0.16, 1, 0.3, 1] }}
+          />
+        ))}
+      </svg>
+
+      <div className="relative max-w-7xl mx-auto px-6 z-10">
+        <Reveal>
+          <div className="flex items-end justify-between border-b border-[#0a0a0c]/10 pb-6 mb-16">
+            <div>
+              <div className="text-[0.65rem] tracking-[0.4em] uppercase text-[#FF2E7E] mb-3">— Selected Holdings</div>
+              <h3 className="text-[#0a0a0c] font-semibold tracking-[-0.03em] text-[clamp(2rem,5vw,3.5rem)]">
+                <ScrambleText text="Projects" />
+              </h3>
+            </div>
+            <span className="text-[#0a0a0c]/40 text-[0.65rem] tracking-[0.2em] uppercase hidden sm:block">05 Works</span>
+          </div>
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {PROJECTS.map((p, i) => (
+            <Reveal key={p.id} delay={i * 0.08}>
+              <motion.a
+                href={p.link || PROFILE.instagram}
+                target="_blank"
+                rel="noreferrer"
+                whileHover={{ y: -8, rotateZ: -0.4 }}
+                transition={{ type: "spring", damping: 20, stiffness: 280 }}
+                className="group relative block bg-white border border-[#0a0a0c]/[0.06] hover:border-[#FF2E7E]/50 p-7 h-full transition-colors overflow-hidden"
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  const el = e.currentTarget.querySelector("[data-inner-glow]") as HTMLElement;
+                  if (el) {
+                    el.style.background = `radial-gradient(200px circle at ${x}px ${y}px, rgba(255,46,126,0.15), transparent 60%)`;
+                  }
+                }}
+              >
+                <div data-inner-glow className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <motion.div
+                  className="absolute top-0 left-0 h-[2px] bg-[#FF2E7E]"
+                  initial={{ width: "0%" }}
+                  whileHover={{ width: "100%" }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                />
+
+                <div className="relative">
+                  <div className="text-[0.6rem] tracking-[0.25em] text-[#FF2E7E] mb-6 font-medium">
+                    {p.id} / {p.tag}
+                  </div>
+                  <h4 className="text-[#0a0a0c] font-semibold tracking-[-0.02em] text-lg leading-snug mb-2">
+                    {p.title}
+                  </h4>
+                  <div className="text-[#0a0a0c]/45 text-xs font-light mb-5">{p.sub}</div>
+                  <p className="text-[#0a0a0c]/60 text-sm font-light leading-relaxed mb-6 line-clamp-3">{p.desc}</p>
+                  <div className="flex flex-wrap gap-1.5 mb-6">
+                    {p.tags.map((t) => (
+                      <span key={t} className="text-[0.6rem] tracking-[0.1em] uppercase text-[#0a0a0c]/50 border border-[#0a0a0c]/10 rounded-full px-2.5 py-1">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-[#FF2E7E] text-[0.7rem] tracking-[0.1em] uppercase">
+                    <span className="w-1 h-1 rounded-full bg-[#FF2E7E]" />
+                    {p.metric}
+                  </div>
+                </div>
+              </motion.a>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   09. CONTACT — dengan DOWNLOAD CV
+   ============================================================ */
+function Contact() {
+  return (
+    <section id="contact" className="py-32 sm:py-44 bg-[#0a0a0c] border-t border-white/[0.03]">
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <Reveal>
+          <div className="text-[0.65rem] tracking-[0.4em] uppercase text-[#FF2E7E] mb-10">— Initiate Engagement</div>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <h2 className="text-white font-semibold leading-[1.03] tracking-[-0.04em] text-[clamp(2.2rem,6vw,4.5rem)]">
+            Let's build
+            <br />
+            <span className="font-light text-white/35">something exceptional.</span>
+          </h2>
+        </Reveal>
+        <Reveal delay={0.25}>
+          <p className="mt-10 text-white/50 font-light max-w-lg mx-auto leading-relaxed text-sm sm:text-base">
+            Open for opportunities in technology consulting, cloud engineering, AI development, and software engineering. I am eager to help organizations solve complex technical challenges and build scalable, intelligent systems.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.4}>
+          <div className="mt-14 flex flex-wrap gap-4 justify-center">
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              href={PROFILE.cvUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full bg-[#FF2E7E] text-[#0a0a0c] font-medium text-[0.7rem] tracking-[0.2em] uppercase px-8 py-4 hover:bg-white transition-colors"
+            >
+              <Download className="w-4 h-4" /> Download CV / Connect
+            </motion.a>
+
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              href={`mailto:${PROFILE.email}`}
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 text-white/80 text-[0.7rem] tracking-[0.2em] uppercase px-8 py-4 hover:border-[#FF2E7E] hover:text-[#FF2E7E] transition-colors"
+            >
+              <Mail className="w-4 h-4" /> Email
+            </motion.a>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              href={PROFILE.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 text-white/80 text-[0.7rem] tracking-[0.2em] uppercase px-8 py-4 hover:border-[#FF2E7E] hover:text-[#FF2E7E] transition-colors"
+            >
+              <Linkedin className="w-4 h-4" /> LinkedIn
+            </motion.a>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              href={PROFILE.github}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 text-white/80 text-[0.7rem] tracking-[0.2em] uppercase px-8 py-4 hover:border-[#FF2E7E] hover:text-[#FF2E7E] transition-colors"
+            >
+              <Github className="w-4 h-4" /> GitHub
+            </motion.a>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              href={PROFILE.instagram}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 text-white/80 text-[0.7rem] tracking-[0.2em] uppercase px-8 py-4 hover:border-[#FF2E7E] hover:text-[#FF2E7E] transition-colors"
+            >
+              <Instagram className="w-4 h-4" /> Instagram
+            </motion.a>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+function Footer() {
+  return (
+    <footer className="bg-[#0a0a0c] border-t border-white/[0.04]">
+      <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[0.6rem] tracking-[0.25em] uppercase text-white/25">
+        <span>{PROFILE.fullName}</span>
+        <span>Jakarta, Indonesia</span>
+        <span>© 2026</span>
+      </div>
+    </footer>
+  );
+}
+
+/* ============================================================
+   PAGE
    ============================================================ */
 export default function Page() {
-  const [selectedExp, setSelectedExp] = useState<ExperienceEntry | null>(null);
+  const [loading, setLoading] = useState(true);
 
   return (
-    <div className="min-h-screen bg-[#08080A] text-[#EDEDED] selection:bg-[#F5C2D2] selection:text-[#08080A] relative">
-      {/* Editorial Hairline Header Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-40 border-b border-white/[0.08] bg-[#08080A]/85 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <span className="text-xs font-mono font-bold tracking-widest text-white group-hover:text-[#F5C2D2] transition-colors">
-              {`PVA // ${USER_PROFILE.edition.split("//")[0]}`}
-            </span>
-            <span className="text-xs font-mono text-white/30 hidden sm:inline">
-              [{USER_PROFILE.institution}]
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6 text-xs font-mono tracking-wider text-white/60">
-            <a href="#flagship" className="hover:text-white transition-colors">01. FLAGSHIP</a>
-            <a href="#projects" className="hover:text-white transition-colors">02. HOLDINGS</a>
-            <a href="#about" className="hover:text-white transition-colors">03. PROFILE</a>
-            <a href="#tech" className="hover:text-white transition-colors">04. MATRIX</a>
-            <a href="#experience" className="hover:text-white transition-colors">05. LEDGER</a>
-            <a href="#certifications" className="hover:text-white transition-colors">06. VAULT</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="#contact"
-              className="text-xs font-mono tracking-wider px-3.5 py-1.5 rounded-full border border-white/15 bg-white/[0.03] text-white hover:border-[#F5C2D2] hover:text-[#F5C2D2] transition-all"
-            >
-              INQUIRE
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-6 pt-28 md:pt-36">
-        {/* HERO SECTION: EDITORIAL MASTHEAD */}
-        <section className="mb-24 md:mb-32">
-          {/* Metadata Ticker Bar */}
-          <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] pb-4 mb-8 text-[11px] font-mono text-white/40 gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-[#F5C2D2]">● {USER_PROFILE.edition}</span>
-              <span>•</span>
-              <span>{USER_PROFILE.location}</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span>SPECIALIZATION: CLOUD & APPLIED AI</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline text-white/60">STATUS: ACTIVE FELLOW</span>
-            </div>
-          </div>
-
-          {/* Hero Dual Grid */}
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            {/* Left Typographic Statement */}
-            <div className="lg:col-span-8 space-y-6">
-              <div className="text-xs font-mono uppercase tracking-widest text-[#F5C2D2]">
-                PORTFOLIO DOSSIER // COMPUTE & INTERACTION
-              </div>
-
-              <h1 className="text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-white leading-[1.05]">
-                Priscilla Valencia Andow
-              </h1>
-
-              <p className="text-xl md:text-2xl text-white/70 font-light max-w-2xl leading-relaxed">
-                Computer Science scholar at BINUS University developing at the intersection of <span className="text-white font-normal">cloud infrastructure</span>, <span className="text-white font-normal">computer vision</span>, and <span className="text-white font-normal">purpose-driven product engineering</span>.
-              </p>
-
-              <div className="pt-4 flex flex-wrap items-center gap-4">
-                <a
-                  href="#flagship"
-                  className="px-5 py-3 rounded-full bg-[#F5C2D2] text-[#08080A] text-xs font-bold uppercase tracking-wider hover:bg-[#ffcddc] transition-colors flex items-center gap-2"
-                >
-                  <span>Explore Flagship Platform</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </a>
-
-                <a
-                  href="#projects"
-                  className="px-5 py-3 rounded-full border border-white/15 bg-white/[0.03] text-white text-xs font-mono hover:bg-white/[0.08] transition-colors"
-                >
-                  View Holdings Index (02—05)
-                </a>
-              </div>
-            </div>
-
-            {/* Right: Portrait Aperture Card */}
-            <div className="lg:col-span-4 flex justify-center lg:justify-end">
-              <div className="relative w-64 md:w-72 aspect-[3/4] rounded-2xl overflow-hidden border border-white/15 bg-[#0D0D12] shadow-2xl group">
-                <Image
-                  src={USER_PROFILE.headshot}
-                  alt={USER_PROFILE.name}
-                  fill
-                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-transparent to-transparent opacity-80" />
-
-                <div className="absolute bottom-4 left-4 right-4 text-xs font-mono">
-                  <div className="text-white font-bold">{USER_PROFILE.shortName}</div>
-                  <div className="text-white/50 text-[10px]">{USER_PROFILE.role}</div>
-                  <a
-                    href={USER_PROFILE.instagram}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 text-[10px] text-[#F5C2D2] hover:underline"
-                  >
-                    <span>{USER_PROFILE.igHandle}</span>
-                    <ArrowUpRight className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 01: FEATURED FLAGSHIP CASE STUDY */}
-        <CloudAuditFlagship />
-
-        {/* 02: PROJECT HOLDINGS (02 - 05) */}
-        <ProjectHoldingsSection />
-
-        {/* 03: EDITORIAL PROFILE & PHILOSOPHY */}
-        <EditorialProfileSection />
-
-        {/* 04: TECHNICAL MATRIX */}
-        <TechnicalMatrixSection />
-
-        {/* 05: EXPERIENCE & LEADERSHIP LEDGER */}
-        <ExperienceLedgerSection onSelectExperience={(exp) => setSelectedExp(exp)} />
-
-        {/* 06: CREDENTIAL VAULT */}
-        <CredentialVaultSection />
-
-        {/* 07: COLOPHON & INQUIRIES */}
-        <ColophonContactSection />
-      </main>
-
-      {/* Experience Detail Modal */}
+    <main className="bg-[#0a0a0c] text-white min-h-screen overflow-x-hidden selection:bg-[#FF2E7E] selection:text-[#0a0a0c]">
       <AnimatePresence>
-        {selectedExp && (
-          <ExperienceDetailModal
-            exp={selectedExp}
-            onClose={() => setSelectedExp(null)}
-          />
-        )}
+        {loading && <LoadingScreen onDone={() => setLoading(false)} />}
       </AnimatePresence>
-    </div>
+
+      {!loading && (
+        <>
+          <HamburgerMenu />
+          <Hero />
+          <Marquee />
+          <About />
+          <Experience />
+          <Certifications />
+          <ProjectsWhite />
+          <Contact />
+          <Footer />
+        </>
+      )}
+    </main>
   );
 }
