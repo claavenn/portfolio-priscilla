@@ -35,7 +35,7 @@ const PROFILE = {
   github: "https://github.com/claavenn",
   instagram: "https://www.instagram.com/priscilla.vln/",
   headshot: "/me.jpg",
-  cvUrl: "https://www.instagram.com/priscilla.vln/", // Fallback to Instagram as requested
+  cvUrl: "/cv-priscilla.pdf",
 };
 
 /* ============================================================
@@ -140,13 +140,13 @@ const CERTIFICATIONS = [
 const PROJECTS = [
   {
     id: "01",
-    tag: "CLOUD TECH & DATA",
-    title: "CLOUD, DATA & AUDIT ANALYTICS",
+    tag: "CLOUD, DATA & AUDIT ANALYTICS",
+    title: "Cloud Audit Analytics Platform",
     sub: "Python · Data Analytics · Audit Automation · Anomaly Detection",
     desc: "A data-driven audit analytics platform designed to identify unusual financial transactions and support risk-based auditing. Built with Python, the project uses synthetic financial data to simulate transaction records, introduce anomalies, and establish a foundation for automated audit analysis.",
     metric: "10,000 SYNTHETIC TRANSACTION RECORDS",
     tags: ["Python", "Pandas", "Data Analytics", "Audit Analytics", "Anomaly Detection"],
-    link: "https://www.credly.com/earner/earned/badge/5118cf29-fa6e-40fa-96a5-9254a3bb45a1",
+    link: "https://github.com/claavenn/Cloud-Audit-Analytics-Platform",
   },
   {
     id: "02",
@@ -186,7 +186,7 @@ const PROJECTS = [
     desc: "A web-based pharmacy management system designed to streamline inventory tracking and pharmaceutical operations. The application focuses on managing medicine records, monitoring stock availability, and organizing inventory data through a structured database and web interface.",
     metric: "PHARMACY INVENTORY MANAGEMENT",
     tags: ["Laravel", "PHP", "MySQL", "Full-Stack SE", "REST API"],
-    link: "https://www.instagram.com/priscilla.vln/", // Link fallback to Instagram as requested
+    link: "https://github.com/claavenn/Website-Apotek-SMA", // Link fallback to Instagram as requested
   },
 ];
 
