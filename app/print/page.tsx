@@ -17,7 +17,7 @@ export default function PrintPage() {
 
   const EXPERIENCES = [
     {
-      role: "Regional Chairman of TFISC @Semarang",
+      role: "Regional President of TFISC @Semarang",
       place: "Organization",
       period: "2026 — Present",
       achievements: [

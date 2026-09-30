@@ -44,7 +44,7 @@ const PROFILE = {
 const EXPERIENCES = [
   {
     index: "01",
-    role: "Regional Prrsident of TFISC @Semarang",
+    role: "Regional President of TFISC @Semarang",
     organization: "Teach For Indonesia Student Community",
     period: "2026 — Present",
     scope: "Executive Leadership & Regional Governance",
@@ -70,7 +70,7 @@ const EXPERIENCES = [
     achievements: [
       "Guided first-year students in initial university adaptation and academic navigation.",
       "Provided comprehensive information on academic procedures and facilitated university communication.",
-      "Encouraged active participationn in university and organizational activities for holistic engagement.",
+      "Encouraged active participation in university and organizational activities for holistic engagement.",
     ],
     competencies: ["ACADEMIC NAVIGATION", "UNIVERSITY COMMUNICATION", "HOLISTIC ENGAGEMENT"],
     photos: [
@@ -102,7 +102,7 @@ const EXPERIENCES = [
     role: "Promotion Team BINUS Semarang",
     organization: "BINUS University",
     period: "2024 — 2025",
-    scope: "Outreach Operations & Prospect Data Managemenmt",
+    scope: "Outreach Operations & Prospect Data Management",
     achievements: [
       "Supported recruitment operations and facilitated campus visit sessions for prospective students and stakeholders.",
       "Handled end-to-end event coordination and on-ground logistics to drive seamless institutional outreach.",
