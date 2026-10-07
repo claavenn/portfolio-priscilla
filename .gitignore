@@ -14,3 +14,4 @@ yarn-error.log*
 next-env.d.ts
 ref_video.mp4
 ref_frames/
+*.lnk
