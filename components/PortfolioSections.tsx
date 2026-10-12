@@ -843,7 +843,7 @@ export function Contact() {
   const links = [
     { href: `mailto:${PROFILE.email}`, label: "Email", Icon: Mail },
     { href: PROFILE.linkedin, label: "LinkedIn", Icon: Linkedin },
-    { href: PROFILE.github, label: "GitHub", Icon: Github },
+     { href: PROFILE.github, label: "GitHub", Icon: Github },
     { href: PROFILE.instagram, label: "Instagram", Icon: Instagram },
   ];
   return (
@@ -870,7 +870,7 @@ export function Footer() {
   return (
     <footer className="bg-ink">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 border-t border-white/10 px-6 py-8 text-xs text-white/45 sm:flex-row">
-        <span>Priscilla Andow</span><span>Bandung, Indonesia</span><span>© 2026</span>
+        <span>Priscilla Andow</span><span>Indonesia</span><span>© 2026</span>
       </div>
     </footer>
   );
